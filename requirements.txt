@@ -3,3 +3,9 @@ uvicorn
 motor
 python-dotenv
 pydantic
+SQLAlchemy
+PyMySQL
+pymongo
+python-dotenv
+pydantic[email]
+python-multipart
