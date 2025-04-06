@@ -28,7 +28,7 @@ class CoversheetModel(BaseModel):
     
     truck_id: str
     route_id: str
-    user_id: str
+    driver_id: str
     
     creationDate: Optional[float] = Field(default_factory=lambda: datetime.timestamp(datetime.now()))
 

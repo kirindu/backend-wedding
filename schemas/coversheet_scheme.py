@@ -24,7 +24,7 @@ def coversheet_helper(coversheet) -> dict:
         
         "truck_id": coversheet["truck_id"],
         "route_id": coversheet["route_id"],
-        "user_id": coversheet["user_id"],
+        "driver_id": coversheet["driver_id"],
         
         "creationDate": coversheet["creationDate"]
         
