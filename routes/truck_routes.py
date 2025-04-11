@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.post("/")
 async def create_truck(truck: TruckModel):
-    new = await trucks_collection.insert_one(truck.dict())
+    new = await trucks_collection.insert_one(truck.model_dump())
     created = await trucks_collection.find_one({"_id": new.inserted_id})
     return truck_helper(created)
 
@@ -25,7 +25,7 @@ async def get_truck(id: str):
 
 @router.put("/{id}")
 async def update_truck(id: str, truck: TruckModel):
-    await trucks_collection.update_one({"_id": ObjectId(id)}, {"$set": truck.dict()})
+    await trucks_collection.update_one({"_id": ObjectId(id)}, {"$set": truck.model_dump()})
     updated = await trucks_collection.find_one({"_id": ObjectId(id)})
     return truck_helper(updated)
 

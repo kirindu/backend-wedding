@@ -6,5 +6,5 @@ def driver_helper(driver) -> dict:
         "email": driver["email"],
         "rol": driver["rol"],
         "password": driver["password"],
-        "creationDate": driver["creationDate"]
+        "createdAt": driver["createdAt"]
     }

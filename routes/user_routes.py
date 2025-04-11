@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.post("/")
 async def create_user(user: UserModel):
-    new = await users_collection.insert_one(user.dict())
+    new = await users_collection.insert_one(user.model_dump())
     created = await users_collection.find_one({"_id": new.inserted_id})
     return user_helper(created)
 
@@ -25,7 +25,7 @@ async def get_user(id: str):
 
 @router.put("/{id}")
 async def update_user(id: str, user: UserModel):
-    await users_collection.update_one({"_id": ObjectId(id)}, {"$set": user.dict()})
+    await users_collection.update_one({"_id": ObjectId(id)}, {"$set": user.model_dump()})
     updated = await users_collection.find_one({"_id": ObjectId(id)})
     return user_helper(updated)
 

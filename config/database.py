@@ -3,6 +3,7 @@ import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
+from colorama import Fore, Style, init
 
 load_dotenv() # Cargamos variables de entorno
 
@@ -16,13 +17,18 @@ database  = client[DB_NAME]
 async def ping_database():
     try:
         await client.admin.command('ping')
-        print("Successfully connected to MongoDB Atlas!")
+        print(Fore.GREEN + "✅ Successfully connected to MongoDB Atlas!")
     except Exception as e:
-        print(f"Failed to connect to MongoDB: {e}")
-
+        print(Fore.RED + f"❌ Failed to connect to MongoDB: {e}")
 
 trucks_collection = database.trucks
 drivers_collection = database.drivers
 users_collection = database.users
 routes_collection = database.routes
+
+sparetruckinfos_collection = database.spareTruckInfo
+downtimes_collection = database.downTime
+loads_collection = database.load
+notes_collection = database.notes
+
 coversheets_collection = database.coversheets

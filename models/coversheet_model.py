@@ -1,37 +1,38 @@
 from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
+from typing import Optional, List
+from datetime import datetime, timezone
 from bson import ObjectId
 
 
 class CoversheetModel(BaseModel):
-    truckInfo_clockIn: str
-    truckInfo_leaveYard: str
-    truckInfo_backInYard: str
-    truckInfo_clockOut: str
-    truckInfo_startMiles: str
-    truckInfo_endMiles: str
-    truckInfo_fuel: str
-    
-    spareTruckInfo_spareTruckNumber: str
-    spareTruckInfo_routeNumber: str
-    spareTruckInfo_leaveYard: str
-    spareTruckInfo_backInYard: str
-    spareTruckInfo_startMiles: str
-    spareTruckInfo_endMiles: str
-    spareTruckInfo_fuel: str
-    
-    downtime_truckNumber: str
-    downtime_startTime: str
-    downtime_downtimeReason: str
+    # TRUCK INFO
+    clockIn: str  
+    leaveYard: str  
+    backInYard: str  
+    clockOut: str  
+    startMiles: float
+    endMiles: float
+    fuel: float
     
     
+    # SPARE TRUCK INFO -RELATIONSHIP
+    spareTruckInfo_id: Optional[List[str]] = []
+    
+    # DOWNTIME - RELATIONSHIP
+    downtime_id: Optional[List[str]] = []
+    
+    # LOAD - RELATIONSHIP
+    load_id: Optional[List[str]] = []
+    
+    # ANOTHER RELATIONSHIPS
     truck_id: str
     route_id: str
     driver_id: str
     
-    creationDate: Optional[float] = Field(default_factory=lambda: datetime.timestamp(datetime.now()))
-
-    # class Config:
-    #     arbitrary_types_allowed = True
-    #     json_encoders = {ObjectId: str}
+    # FIELDS
+    date: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    notes: Optional[str] = None
+    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updatedAt: Optional[datetime] = None
+    
+    
