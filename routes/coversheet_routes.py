@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from models.coversheet_model import CoversheetModel
 from config.database import coversheets_collection
 from schemas.coversheet_scheme import coversheet_helper
@@ -25,9 +25,11 @@ async def get_coversheet(id: str):
 
 @router.put("/{id}")
 async def update_coversheet(id: str, coversheet: CoversheetModel):
-    await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": coversheet.model_dump()})
-    updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
-    return coversheet_helper(updated)
+   res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": coversheet.model_dump()})
+   if res.matched_count == 0:
+       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="CoverSheet not found")
+   updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
+   return coversheet_helper(updated)
 
 @router.delete("/{id}")
 async def delete_coversheet(id: str):

@@ -26,8 +26,8 @@ drivers_collection = database.drivers
 users_collection = database.users
 routes_collection = database.routes
 
-sparetruckinfos_collection = database.spareTruckInfo
-downtimes_collection = database.downTime
+sparetruckinfos_collection = database.sparetruckinfo
+downtimes_collection = database.downtime
 loads_collection = database.load
 notes_collection = database.notes
 
