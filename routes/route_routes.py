@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from models.route_model import RouteModel
 from config.database import routes_collection
 from schemas.route_scheme import route_helper
@@ -25,9 +25,15 @@ async def get_route(id: str):
 
 @router.put("/{id}")
 async def update_route(id: str, route: RouteModel):
-    await routes_collection.update_one({"_id": ObjectId(id)}, {"$set": route.model_dump()})
-    updated = await routes_collection.find_one({"_id": ObjectId(id)})
-    return route_helper(updated)
+  res = await routes_collection.update_one({"_id": ObjectId(id)}, {"$set": route.model_dump()})
+  if res.matched_count == 0:
+      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Route not found")  
+  updated = await routes_collection.find_one({"_id": ObjectId(id)})
+  return route_helper(updated)
+
+
+
+
 
 @router.delete("/{id}")
 async def delete_route(id: str):
