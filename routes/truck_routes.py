@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from models.truck_model import TruckModel
 from config.database import trucks_collection
 from schemas.truck_scheme import truck_helper
@@ -25,9 +25,11 @@ async def get_truck(id: str):
 
 @router.put("/{id}")
 async def update_truck(id: str, truck: TruckModel):
-    await trucks_collection.update_one({"_id": ObjectId(id)}, {"$set": truck.model_dump()})
-    updated = await trucks_collection.find_one({"_id": ObjectId(id)})
-    return truck_helper(updated)
+   res =  await trucks_collection.update_one({"_id": ObjectId(id)}, {"$set": truck.model_dump()})
+   if res.matched_count == 0:
+       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Truck not found")  
+   updated = await trucks_collection.find_one({"_id": ObjectId(id)})
+   return truck_helper(updated)
 
 @router.delete("/{id}")
 async def delete_truck(id: str):

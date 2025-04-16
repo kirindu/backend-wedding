@@ -31,10 +31,6 @@ async def update_route(id: str, route: RouteModel):
   updated = await routes_collection.find_one({"_id": ObjectId(id)})
   return route_helper(updated)
 
-
-
-
-
 @router.delete("/{id}")
 async def delete_route(id: str):
     res = await routes_collection.delete_one({"_id": ObjectId(id)})
