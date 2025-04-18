@@ -18,5 +18,5 @@ class LoadModel(BaseModel):
     landFill: Optional[str]= None
     ticketNumber: Optional[str]= None
     note: Optional[str]= None
-    image: Optional[str]= None
+    
  

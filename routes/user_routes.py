@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from models.user_model import UserModel
 from config.database import users_collection
 from schemas.user_scheme import user_helper
@@ -25,9 +25,11 @@ async def get_user(id: str):
 
 @router.put("/{id}")
 async def update_user(id: str, user: UserModel):
-    await users_collection.update_one({"_id": ObjectId(id)}, {"$set": user.model_dump()})
-    updated = await users_collection.find_one({"_id": ObjectId(id)})
-    return user_helper(updated)
+   res = await users_collection.update_one({"_id": ObjectId(id)}, {"$set": user.model_dump()})
+   if res.matched_count == 0:
+       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+   updated = await users_collection.find_one({"_id": ObjectId(id)})
+   return user_helper(updated)
 
 
 @router.delete("/{id}")

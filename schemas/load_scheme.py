@@ -13,5 +13,5 @@ def load_helper(load) -> dict:
         "landFill": load["landFill"],
         "ticketNumber": load["ticketNumber"],
         "note": load["note"],
-        "image": load["image"]  
+        "images": load.get("images", [])
     }
