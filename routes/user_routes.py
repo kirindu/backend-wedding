@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
-from auth import verify_password, create_access_token
+from config.auth import verify_password, create_access_token
 from datetime import timedelta
 from models.user_model import UserModel
 from config.database import users_collection
 from schemas.user_scheme import user_helper
 from bson import ObjectId
-from auth import hash_password
-from dependencies import get_current_user
+from config.auth import hash_password
+from config.dependencies import get_current_user
 
 router = APIRouter()
 

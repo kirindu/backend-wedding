@@ -2,7 +2,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
-from auth import decode_token
+from config.auth import decode_token
 from config.database import users_collection
 from bson import ObjectId
 

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status,Depends
 from models.coversheet_model import CoversheetModel
 from config.database import coversheets_collection
 from schemas.coversheet_scheme import coversheet_helper
+from config.dependencies import get_current_user
 from bson import ObjectId
 
 router = APIRouter()
@@ -11,6 +12,19 @@ async def create_coversheet(coversheet: CoversheetModel):
     new = await coversheets_collection.insert_one(coversheet.model_dump())
     created = await coversheets_collection.find_one({"_id": new.inserted_id})
     return coversheet_helper(created)
+
+
+# Uncomment the following lines if you want to restrict access to the create_coversheet endpoint
+# @router.post("/")
+# async def create_coversheet(coversheet: CoversheetModel, current_user: dict = Depends(get_current_user)):
+#     if current_user.get("rol") != "Admin":
+#         raise HTTPException(status_code=403, detail="No tienes permiso para crear Coversheets")
+
+#     new = await coversheets_collection.insert_one(coversheet.model_dump())
+#     created = await coversheets_collection.find_one({"_id": new.inserted_id})
+#     return coversheet_helper(created)
+
+
 
 @router.get("/")
 async def get_all_coversheets():
