@@ -1,6 +1,6 @@
 from bson import ObjectId
 from config.database import coversheets_collection
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 async def add_entity_to_coversheet(coversheet_id: str, entity_field: str, entity_id: str):
     """
@@ -12,7 +12,7 @@ async def add_entity_to_coversheet(coversheet_id: str, entity_field: str, entity
     """
     coversheet = await coversheets_collection.find_one({"_id": ObjectId(coversheet_id)})
     if not coversheet:
-        raise HTTPException(status_code=404, detail="Coversheet no encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Coversheet no encontrado")
 
     await coversheets_collection.update_one(
         {"_id": ObjectId(coversheet_id)},

@@ -38,7 +38,7 @@ async def create_load_with_images(
         # Validar tipo de archivo (MIME)
         if not image.content_type.startswith("image/"):
             raise HTTPException(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"El archivo '{image.filename}' no es una imagen válida."
             )
 
@@ -46,7 +46,7 @@ async def create_load_with_images(
         contents = await image.read()
         if len(contents) > 1 * 1024 * 1024:
             raise HTTPException(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB."
             )
 

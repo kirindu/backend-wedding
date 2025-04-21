@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+
 from contextlib import asynccontextmanager
 
 from config.database import ping_database
@@ -24,6 +26,32 @@ async def lifespan(application: FastAPI):
     
 
 app = FastAPI(lifespan=lifespan)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    response = await call_next(request)
+    print("Hola desde el middleware")
+    return response
+
+# Incluimos los orígenes permitidos en la configuración de CORS
+# Si quiere permitir todos los orígenes, puedes usar unicamente ["*"]
+origins = [
+    "http://www.render.com",
+    "https://www.acedisposal.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Incluijmos las rutas de la API
 
 app.include_router(route_router, prefix="/api/routes", tags=["Routes"])
 app.include_router(truck_router, prefix="/api/trucks", tags=["Trucks"])

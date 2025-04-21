@@ -5,6 +5,5 @@ def user_helper(user) -> dict:
         "name": user["name"],
         "email": user["email"],
         "rol": user["rol"],
-        "password": user["password"],
         "createdAt": user["createdAt"]
     }
