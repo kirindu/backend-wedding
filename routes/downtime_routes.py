@@ -2,14 +2,22 @@ from fastapi import APIRouter, HTTPException, status
 from models.downtime_model import DowntimeModel
 from config.database import downtimes_collection
 from schemas.downtime_scheme import downtime_helper
+from utils.coversheet_updater import add_entity_to_coversheet
+
 from bson import ObjectId
 
 router = APIRouter()
 
 @router.post("/")
 async def create_downtime(downtime: DowntimeModel):
-    new = await downtimes_collection.insert_one(downtime.model_dump())
+    
+    data = downtime.model_dump()
+    coversheet_id = data.pop("coversheet_id")  # extrae y remueve coversheet_id del dict
+    new = await downtimes_collection.insert_one(data)
     created = await downtimes_collection.find_one({"_id": new.inserted_id})
+    
+    await add_entity_to_coversheet(coversheet_id, "downtime_id", str(new.inserted_id))
+
     return downtime_helper(created)
 
 @router.get("/")

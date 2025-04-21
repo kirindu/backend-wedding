@@ -2,14 +2,21 @@ from fastapi import APIRouter, HTTPException, status
 from models.sparetruckinfo_model import SpareTruckInfoModel
 from config.database import sparetruckinfos_collection
 from schemas.sparetruckinfo_scheme import sparetruckinfo_helper
+from utils.coversheet_updater import add_entity_to_coversheet
 from bson import ObjectId
 
 router = APIRouter()
 
 @router.post("/")
 async def create_sparetruckinfo(sparetruckinfo: SpareTruckInfoModel):
-    new = await sparetruckinfos_collection.insert_one(sparetruckinfo.model_dump())
+    
+    data = sparetruckinfo.model_dump()
+    coversheet_id = data.pop("coversheet_id")  # extrae y remueve coversheet_id del dict
+    new = await sparetruckinfos_collection.insert_one(data)
     created = await sparetruckinfos_collection.find_one({"_id": new.inserted_id})
+    
+    await add_entity_to_coversheet(coversheet_id, "spareTruckInfo_id", str(new.inserted_id))
+
     return sparetruckinfo_helper(created)
 
 @router.get("/")

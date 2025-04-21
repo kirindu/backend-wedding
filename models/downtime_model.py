@@ -11,4 +11,5 @@ class DowntimeModel(BaseModel):
     startTime: Optional[str] = None
     endTime: Optional[str] = None
     downtimeReason: Optional[str] = None
+    coversheet_id: Optional[str]= None
  

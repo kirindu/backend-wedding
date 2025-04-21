@@ -7,9 +7,12 @@ from typing import List, Optional
 import os
 import shutil
 import uuid
+from utils.coversheet_updater import add_entity_to_coversheet
+
 
 router = APIRouter()
 
+# Si te fijas he agregado coversheet_id como refencia a coversheet
 @router.post("/")
 async def create_load_with_images(
     firstStopTime: Optional[str] = Form(None),
@@ -23,6 +26,7 @@ async def create_load_with_images(
     landFill: Optional[str] = Form(None),
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
+    coversheet_id: str = Form(...),
     images: List[UploadFile] = File(default=[])
 ):
     image_paths = []
@@ -71,6 +75,11 @@ async def create_load_with_images(
 
     new = await loads_collection.insert_one(data)
     created = await loads_collection.find_one({"_id": new.inserted_id})
+    
+    # Asociar con Coversheet
+    await add_entity_to_coversheet(coversheet_id, "load_id", str(new.inserted_id))
+
+    
     return load_helper(created)
 
 @router.get("/")

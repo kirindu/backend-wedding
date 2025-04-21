@@ -14,3 +14,4 @@ class SpareTruckInfoModel(BaseModel):
     startMiles: Optional[str]= None
     endMiles: Optional[str]= None
     fuel: Optional[str]= None
+    coversheet_id: Optional[str]= None
