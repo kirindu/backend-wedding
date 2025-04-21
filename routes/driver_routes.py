@@ -1,10 +1,26 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Form
 from models.driver_model import DriverModel
 from config.database import drivers_collection
 from schemas.driver_scheme import driver_helper
 from bson import ObjectId
 
 router = APIRouter()
+
+@router.post("/login")
+async def driver_login(email: str = Form(...), password: str = Form(...)):
+    driver = await drivers_collection.find_one({"email": email})
+    if not driver or driver["password"] != password:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+    
+    return {
+        "msg": "Login exitoso",
+        "driver": {
+            "id": str(driver["_id"]),
+            "name": driver["name"],
+            "email": driver["email"],
+            "rol": driver["rol"]
+        }
+    }
 
 @router.post("/")
 async def create_driver(driver: DriverModel):
