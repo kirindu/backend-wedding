@@ -15,7 +15,7 @@ router = APIRouter()
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await users_collection.find_one({"email": form_data.username})
     if not user or not verify_password(form_data.password, user["password"]):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Credenciales inválidas")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
     
     access_token = create_access_token(data={"sub": user["email"]}, expires_delta=timedelta(minutes=60))
     return {"access_token": access_token, "token_type": "bearer"}
