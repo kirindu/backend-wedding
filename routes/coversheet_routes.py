@@ -3,9 +3,80 @@ from models.coversheet_model import CoversheetModel
 from config.database import coversheets_collection
 from schemas.coversheet_scheme import coversheet_helper
 from config.dependencies import get_current_user
+
+
+
+from schemas.load_scheme import load_helper
+from schemas.downtime_scheme import downtime_helper
+from schemas.sparetruckinfo_scheme import sparetruckinfo_helper
+from schemas.truck_scheme import truck_helper
+from schemas.route_scheme import route_helper
+from schemas.driver_scheme import driver_helper
+
+from config.database import (
+    loads_collection,
+    downtimes_collection,
+    sparetruckinfos_collection,
+    trucks_collection,
+    routes_collection,
+    drivers_collection
+)
+
 from bson import ObjectId
 
+async def expand_related_data(coversheet):
+    # Expandir Loads
+    loads = []
+    for load_id in coversheet.get("load_id", []):
+        load = await loads_collection.find_one({"_id": ObjectId(load_id)})
+        if load:
+            loads.append(load_helper(load))
+
+    # Expandir Downtime
+    downtimes = []
+    for dt_id in coversheet.get("downtime_id", []):
+        dt = await downtimes_collection.find_one({"_id": ObjectId(dt_id)})
+        if dt:
+            downtimes.append(downtime_helper(dt))
+
+    # Expandir SpareTruckInfo
+    sparetrucks = []
+    for sp_id in coversheet.get("spareTruckInfo_id", []):
+        st = await sparetruckinfos_collection.find_one({"_id": ObjectId(sp_id)})
+        if st:
+            sparetrucks.append(sparetruckinfo_helper(st))
+
+    # Expandir referencias únicas
+    truck = await trucks_collection.find_one({"_id": ObjectId(coversheet["truck_id"])})
+    route = await routes_collection.find_one({"_id": ObjectId(coversheet["route_id"])})
+    driver = await drivers_collection.find_one({"_id": ObjectId(coversheet["driver_id"])})
+
+    return {
+        **coversheet_helper(coversheet),
+        "loads": loads,
+        "downtimes": downtimes,
+        "spareTruckInfos": sparetrucks,
+        "truck": truck_helper(truck) if truck else None,
+        "route": route_helper(route) if route else None,
+        "driver": driver_helper(driver) if driver else None
+    }
+
 router = APIRouter()
+
+
+@router.get("/with-details")
+async def get_all_coversheets_with_details():
+    coversheets = [doc async for doc in coversheets_collection.find()]
+    return [await expand_related_data(c) for c in coversheets]
+
+@router.get("/with-details/{id}")
+async def get_coversheet_with_details(id: str):
+    coversheet = await coversheets_collection.find_one({"_id": ObjectId(id)})
+    if not coversheet:
+        raise HTTPException(status_code=404, detail="Coversheet not found")
+    return await expand_related_data(coversheet)
+
+
 
 @router.post("/")
 async def create_coversheet(coversheet: CoversheetModel):
