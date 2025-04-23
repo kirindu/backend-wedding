@@ -17,6 +17,7 @@ from routes.downtime_routes import router as downtime_router
 from routes.load_routes import router as load_router
 
 from routes.user_routes import router as user_router
+from routes.email_routes import router as email_router
 
 
 @asynccontextmanager
@@ -52,6 +53,9 @@ app.add_middleware(
 )
 
 # Incluijmos las rutas de la API
+
+app.include_router(email_router, prefix="/api/utils", tags=["Email"])
+
 
 app.include_router(route_router, prefix="/api/routes", tags=["Routes"])
 app.include_router(truck_router, prefix="/api/trucks", tags=["Trucks"])

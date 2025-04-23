@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .logo {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+    .footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>{{ subject }}</h2>
+    <p>{{ message }}</p>
+  </hr>
+    <img src="{{ logo_url }}" alt="Logo" class="logo" />
+    
+    <div class="footer">
+      © 2025 ACEDisposal
+    </div>
+  </div>
+</body>
+</html>

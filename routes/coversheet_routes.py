@@ -61,8 +61,8 @@ async def expand_related_data(coversheet):
         "driver": driver_helper(driver) if driver else None
     }
 
-router = APIRouter()
 
+router = APIRouter()
 
 @router.get("/with-details")
 async def get_all_coversheets_with_details():
