@@ -5,5 +5,5 @@ def user_helper(user) -> dict:
         "name": user["name"],
         "email": user["email"],
         "rol": user["rol"],
-        "createdAt": user["createdAt"]
+        "createdAt": user["createdAt"].isoformat() if "createdAt" in user else None,
     }

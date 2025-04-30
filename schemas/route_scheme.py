@@ -4,5 +4,6 @@ def route_helper(route) -> dict:
         "routeNumber": route["routeNumber"],
         "lob": route["lob"],
         "active": route["active"],
-        "createdAt": route["createdAt"]
+        "createdAt": route["createdAt"].isoformat() if "createdAt" in route else None,
+        
     }

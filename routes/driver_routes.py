@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Form
+from fastapi.responses import JSONResponse
+from utils.response_helper import success_response, error_response
 from models.driver_model import DriverModel
 from config.database import drivers_collection
 from schemas.driver_scheme import driver_helper
@@ -8,49 +10,60 @@ router = APIRouter()
 
 @router.post("/login")
 async def driver_login(email: str = Form(...), password: str = Form(...)):
-    driver = await drivers_collection.find_one({"email": email})
-    if not driver or driver["password"] != password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
-    
-    return {
-        "msg": "Login exitoso",
-        "driver": {
+    try:
+        driver = await drivers_collection.find_one({"email": email})
+
+        if not driver or driver["password"] != password:
+            return error_response("Credenciales inválidas", status_code=status.HTTP_401_UNAUTHORIZED)
+
+        driver_data = {
             "id": str(driver["_id"]),
             "name": driver["name"],
             "email": driver["email"],
             "rol": driver["rol"]
         }
-    }
+
+        return success_response(driver_data, msg="Login exitoso")
+
+    except Exception as e:
+        return error_response(f"Error interno al autenticar: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @router.post("/")
 async def create_driver(driver: DriverModel):
-    new = await drivers_collection.insert_one(driver.model_dump())
-    created = await drivers_collection.find_one({"_id": new.inserted_id})
-    return driver_helper(created)
+    try:
+        new = await drivers_collection.insert_one(driver.model_dump())
+        created = await drivers_collection.find_one({"_id": new.inserted_id})
+        return success_response(driver_helper(created), msg="Driver creado exitosamente")
+    except Exception as e:
+        return error_response(f"Error al crear el driver: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @router.get("/")
 async def get_all_drivers():
-    return [driver_helper(driver) async for driver in drivers_collection.find()]
+    try:
+        drivers = [driver_helper(driver) async for driver in drivers_collection.find()]
+        return success_response(drivers, msg="Lista de drivers obtenida")
+    except Exception as e:
+        return error_response(f"Error al obtener los drivers: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @router.get("/{id}")
 async def get_driver(id: str):
     driver = await drivers_collection.find_one({"_id": ObjectId(id)})
     if driver:
-        return driver_helper(driver)
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Driver not found")
+        return success_response(driver_helper(driver), msg="Driver encontrado")
+    return error_response("Driver no encontrado", status_code=status.HTTP_404_NOT_FOUND)
 
 @router.put("/{id}")
 async def update_driver(id: str, driver: DriverModel):
     res = await drivers_collection.update_one({"_id": ObjectId(id)}, {"$set": driver.model_dump()})
     if res.matched_count == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Driver not found")
-    updated = await drivers_collection.find_one({"_id": ObjectId(id)})
-    return driver_helper(updated)
+        return error_response("Driver no encontrado", status_code=status.HTTP_404_NOT_FOUND)
 
+    updated = await drivers_collection.find_one({"_id": ObjectId(id)})
+    return success_response(driver_helper(updated), msg="Driver actualizado")
 
 @router.delete("/{id}")
 async def delete_driver(id: str):
     res = await drivers_collection.delete_one({"_id": ObjectId(id)})
     if res.deleted_count:
-        return {"msg": "Driver deleted"}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Driver not found")
+        return success_response(None, msg="Driver eliminado")
+    return error_response("Driver no encontrado", status_code=status.HTTP_404_NOT_FOUND)    

@@ -5,6 +5,5 @@ def driver_helper(driver) -> dict:
         "name": driver["name"],
         "email": driver["email"],
         "rol": driver["rol"],
-        "password": driver["password"],
-        "createdAt": driver["createdAt"]
+        "createdAt": driver["createdAt"].isoformat() if "createdAt" in driver else None,
     }

@@ -22,8 +22,9 @@ def coversheet_helper(coversheet) -> dict:
         "driver_id": coversheet["driver_id"],
         
         # FIELDS
-        "date": coversheet["date"],
+        "date": coversheet["date"].isoformat() if coversheet.get("date") else None,
         "notes": coversheet["notes"],
-        "createdAt": coversheet["createdAt"]
+        "createdAt": coversheet["createdAt"].isoformat() if coversheet.get("createdAt") else None,
+        "updatedAt": coversheet["updatedAt"].isoformat() if coversheet.get("updatedAt") else None
         
     }
