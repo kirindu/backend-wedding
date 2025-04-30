@@ -54,7 +54,7 @@ async def upload_image(
         )
     except Exception as e:
         return JSONResponse(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"error": str(e)}
         )
 

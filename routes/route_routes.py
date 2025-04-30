@@ -30,7 +30,7 @@ async def get_route(id: str):
         route = await routes_collection.find_one({"_id": ObjectId(id)})
         if route:
             return success_response(route_helper(route), msg="Ruta encontrada")
-        return error_response("Ruta no encontrada", status_code=404)
+        return error_response("Ruta no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener ruta: {str(e)}")
 
@@ -39,7 +39,7 @@ async def update_route(id: str, route: RouteModel):
     try:
         res = await routes_collection.update_one({"_id": ObjectId(id)}, {"$set": route.model_dump()})
         if res.matched_count == 0:
-            return error_response("Ruta no encontrada", status_code=404)
+            return error_response("Ruta no encontrada", status_code=status.HTTP_404_NOT_FOUND)
         updated = await routes_collection.find_one({"_id": ObjectId(id)})
         return success_response(route_helper(updated), msg="Ruta actualizada")
     except Exception as e:
@@ -51,6 +51,6 @@ async def delete_route(id: str):
         res = await routes_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="Ruta eliminada")
-        return error_response("Ruta no encontrada", status_code=404)
+        return error_response("Ruta no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar ruta: {str(e)}")

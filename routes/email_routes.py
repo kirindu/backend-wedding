@@ -1,5 +1,5 @@
 # routes/email_routes.py
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Form
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status, Form
 from utils.email_utils import send_email
 
 router = APIRouter()
@@ -15,4 +15,4 @@ async def send_test_email(
         background_tasks.add_task(send_email, to, subject, message)
         return {"message": f"Envío de correo programado a {to}"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

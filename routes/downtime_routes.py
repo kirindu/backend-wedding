@@ -22,7 +22,7 @@ async def create_downtime(downtime: DowntimeModel):
 
         return success_response(downtime_helper(created), msg="Downtime creada exitosamente")
     except Exception as e:
-        return error_response(f"Error al crear downtime: {str(e)}", status_code=500)
+        return error_response(f"Error al crear downtime: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @router.get("/")
 async def get_all_downtimes():
@@ -30,7 +30,7 @@ async def get_all_downtimes():
         downtimes = [downtime_helper(d) async for d in downtimes_collection.find()]
         return success_response(downtimes, msg="Lista de downtimes obtenida")
     except Exception as e:
-        return error_response(f"Error al obtener downtimes: {str(e)}", status_code=500)
+        return error_response(f"Error al obtener downtimes: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @router.get("/{id}")
 async def get_downtime(id: str):
@@ -38,7 +38,7 @@ async def get_downtime(id: str):
         downtime = await downtimes_collection.find_one({"_id": ObjectId(id)})
         if downtime:
             return success_response(downtime_helper(downtime), msg="Downtime encontrada")
-        return error_response("Downtime no encontrada", status_code=404)
+        return error_response("Downtime no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener downtime: {str(e)}")
 
@@ -47,7 +47,7 @@ async def update_downtime(id: str, downtime: DowntimeModel):
     try:
         res = await downtimes_collection.update_one({"_id": ObjectId(id)}, {"$set": downtime.model_dump()})
         if res.matched_count == 0:
-            return error_response("Downtime no encontrada", status_code=404)
+            return error_response("Downtime no encontrada", status_code=status.HTTP_404_NOT_FOUND)
         updated = await downtimes_collection.find_one({"_id": ObjectId(id)})
         return success_response(downtime_helper(updated), msg="Downtime actualizada")
     except Exception as e:
@@ -59,6 +59,6 @@ async def delete_downtime(id: str):
         res = await downtimes_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="Downtime eliminada")
-        return error_response("Downtime no encontrada", status_code=404)
+        return error_response("Downtime no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar downtime: {str(e)}")

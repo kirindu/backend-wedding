@@ -50,7 +50,7 @@ async def expand_related_data(coversheet):
             "driver": driver_helper(driver) if driver else None
         }
     except Exception as e:
-        return error_response(f"Error al expandir datos relacionados: {str(e)}", status_code=500)
+        return error_response(f"Error al expandir datos relacionados: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/with-details")
@@ -68,7 +68,7 @@ async def get_coversheet_with_details(id: str):
     try:
         coversheet = await coversheets_collection.find_one({"_id": ObjectId(id)})
         if not coversheet:
-            return error_response("Coversheet no encontrada", status_code=404)
+            return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
         return success_response(await expand_related_data(coversheet))
     except Exception as e:
         return error_response(f"Error al obtener coversheet: {str(e)}")
@@ -81,7 +81,7 @@ async def create_coversheet(coversheet: CoversheetModel):
         created = await coversheets_collection.find_one({"_id": new.inserted_id})
         return success_response(coversheet_helper(created), msg="Coversheet creada exitosamente")
     except Exception as e:
-        return error_response(f"Error al crear coversheet: {str(e)}", status_code=500)
+        return error_response(f"Error al crear coversheet: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/")
@@ -99,7 +99,7 @@ async def get_coversheet(id: str):
         c = await coversheets_collection.find_one({"_id": ObjectId(id)})
         if c:
             return success_response(coversheet_helper(c))
-        return error_response("Coversheet no encontrada", status_code=404)
+        return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener coversheet: {str(e)}")
 
@@ -109,7 +109,7 @@ async def update_coversheet(id: str, coversheet: CoversheetModel):
     try:
         res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": coversheet.model_dump()})
         if res.matched_count == 0:
-            return error_response("Coversheet no encontrada", status_code=404)
+            return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
         updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
         return success_response(coversheet_helper(updated), msg="Coversheet actualizada")
     except Exception as e:
@@ -122,6 +122,6 @@ async def delete_coversheet(id: str):
         res = await coversheets_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="Coversheet eliminada")
-        return error_response("Coversheet no encontrada", status_code=404)
+        return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar coversheet: {str(e)}")

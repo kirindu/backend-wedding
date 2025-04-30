@@ -61,7 +61,7 @@ async def get_user(id: str):
         user = await users_collection.find_one({"_id": ObjectId(id)})
         if user:
             return success_response(user_helper(user), msg="Usuario encontrado")
-        return error_response("Usuario no encontrado", status_code=404)
+        return error_response("Usuario no encontrado", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener usuario: {str(e)}")
 
@@ -73,7 +73,7 @@ async def update_user(id: str, user: UserModel):
 
         res = await users_collection.update_one({"_id": ObjectId(id)}, {"$set": user_dict})
         if res.matched_count == 0:
-            return error_response("Usuario no encontrado", status_code=404)
+            return error_response("Usuario no encontrado", status_code=status.HTTP_404_NOT_FOUND)
 
         updated = await users_collection.find_one({"_id": ObjectId(id)})
         return success_response(user_helper(updated), msg="Usuario actualizado")
@@ -84,11 +84,11 @@ async def update_user(id: str, user: UserModel):
 async def delete_user(id: str, current_user: dict = Depends(get_current_user)):
     try:
         if current_user.get("rol") != "Admin":
-            return error_response("No tienes permiso para eliminar usuarios", status_code=403)
+            return error_response("No tienes permiso para eliminar usuarios", status_code=status.HTTP_403_FORBIDDEN)
 
         res = await users_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="Usuario eliminado")
-        return error_response("Usuario no encontrado", status_code=404)
+        return error_response("Usuario no encontrado", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar usuario: {str(e)}")

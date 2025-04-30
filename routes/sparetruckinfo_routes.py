@@ -37,7 +37,7 @@ async def get_sparetruckinfo(id: str):
         sparetruckinfo = await sparetruckinfos_collection.find_one({"_id": ObjectId(id)})
         if sparetruckinfo:
             return success_response(sparetruckinfo_helper(sparetruckinfo), msg="SpareTruckInfo encontrado")
-        return error_response("SpareTruckInfo no encontrado", status_code=404)
+        return error_response("SpareTruckInfo no encontrado", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener SpareTruckInfo: {str(e)}")
 
@@ -46,7 +46,7 @@ async def update_sparetruckinfo(id: str, sparetruckinfo: SpareTruckInfoModel):
     try:
         res = await sparetruckinfos_collection.update_one({"_id": ObjectId(id)}, {"$set": sparetruckinfo.model_dump()})
         if res.matched_count == 0:
-            return error_response("SpareTruckInfo no encontrado", status_code=404)
+            return error_response("SpareTruckInfo no encontrado", status_code=status.HTTP_404_NOT_FOUND)
         updated = await sparetruckinfos_collection.find_one({"_id": ObjectId(id)})
         return success_response(sparetruckinfo_helper(updated), msg="SpareTruckInfo actualizado")
     except Exception as e:
@@ -58,6 +58,6 @@ async def delete_sparetruckinfo(id: str):
         res = await sparetruckinfos_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="SpareTruckInfo eliminado")
-        return error_response("SpareTruckInfo no encontrado", status_code=404)
+        return error_response("SpareTruckInfo no encontrado", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar SpareTruckInfo: {str(e)}")

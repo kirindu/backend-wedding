@@ -96,7 +96,7 @@ async def update_load_with_form(
     try:
         existing = await loads_collection.find_one({"_id": ObjectId(id)})
         if not existing:
-            return error_response("Load no encontrada", status_code=404)
+            return error_response("Load no encontrada", status_code=status.HTTP_404_NOT_FOUND)
 
         image_paths = existing.get("images", [])
         upload_dir = "uploads"
@@ -159,7 +159,7 @@ async def get_load(id: str):
         load = await loads_collection.find_one({"_id": ObjectId(id)})
         if load:
             return success_response(load_helper(load), msg="Load encontrada")
-        return error_response("Load no encontrada", status_code=404)
+        return error_response("Load no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener load: {str(e)}")
 
@@ -170,6 +170,6 @@ async def delete_load(id: str):
         res = await loads_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="Load eliminada")
-        return error_response("Load no encontrada", status_code=404)
+        return error_response("Load no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar load: {str(e)}")

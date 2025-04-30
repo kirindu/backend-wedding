@@ -30,7 +30,7 @@ async def get_truck(id: str):
         truck = await trucks_collection.find_one({"_id": ObjectId(id)})
         if truck:
             return success_response(truck_helper(truck), msg="Truck encontrado")
-        return error_response("Truck no encontrado", status_code=404)
+        return error_response("Truck no encontrado", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al obtener truck: {str(e)}")
 
@@ -39,7 +39,7 @@ async def update_truck(id: str, truck: TruckModel):
     try:
         res = await trucks_collection.update_one({"_id": ObjectId(id)}, {"$set": truck.model_dump()})
         if res.matched_count == 0:
-            return error_response("Truck no encontrado", status_code=404)
+            return error_response("Truck no encontrado", status_code=status.HTTP_404_NOT_FOUND)
         updated = await trucks_collection.find_one({"_id": ObjectId(id)})
         return success_response(truck_helper(updated), msg="Truck actualizado")
     except Exception as e:
@@ -51,6 +51,6 @@ async def delete_truck(id: str):
         res = await trucks_collection.delete_one({"_id": ObjectId(id)})
         if res.deleted_count:
             return success_response(None, msg="Truck eliminado")
-        return error_response("Truck no encontrado", status_code=404)
+        return error_response("Truck no encontrado", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar truck: {str(e)}")
