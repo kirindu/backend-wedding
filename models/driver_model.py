@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 
 
 class DriverModel(BaseModel):
-    name: str
+    name: Optional[str]= None
     email: EmailStr
-    rol: str
+    rol: Optional[str]= None
     password: str
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))

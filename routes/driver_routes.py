@@ -9,25 +9,25 @@ from bson import ObjectId
 router = APIRouter()
 
 @router.post("/login")
-async def driver_login(email: str = Form(...), password: str = Form(...)):
+async def driver_login(driver: DriverModel):
     try:
-        driver = await drivers_collection.find_one({"email": email})
+        db_driver = await drivers_collection.find_one({"email": driver.email})
 
-        if not driver or driver["password"] != password:
+        if not db_driver or db_driver["password"] != driver.password:
             return error_response("Credenciales inválidas", status_code=status.HTTP_401_UNAUTHORIZED)
 
         driver_data = {
-            "id": str(driver["_id"]),
-            "name": driver["name"],
-            "email": driver["email"],
-            "rol": driver["rol"]
+            "id": str(db_driver["_id"]),
+            "name": db_driver["name"],
+            "email": db_driver["email"],
+            "rol": db_driver["rol"]
         }
 
         return success_response(driver_data, msg="Login exitoso")
 
     except Exception as e:
         return error_response(f"Error interno al autenticar: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    
 @router.post("/")
 async def create_driver(driver: DriverModel):
     try:
