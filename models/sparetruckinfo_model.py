@@ -8,10 +8,10 @@ from datetime import datetime
 
 class SpareTruckInfoModel(BaseModel):
     spareTruckNumber: Optional[str]= None
-    routeNumber: Optional[str]= None
+    route_id: Optional[str]= None
     leaveYard: Optional[str]= None
     backInYard: Optional[str]= None
-    startMiles: Optional[str]= None
-    endMiles: Optional[str]= None
-    fuel: Optional[str]= None
+    startMiles: Optional[float]= None
+    endMiles: Optional[float]= None
+    fuel: Optional[float]= None
     coversheet_id: Optional[str]= None
