@@ -11,7 +11,7 @@ class SpareTruckInfoModel(BaseModel):
     route_id: Optional[str]= None
     leaveYard: Optional[str]= None
     backInYard: Optional[str]= None
-    startMiles: Optional[float]= None
-    endMiles: Optional[float]= None
-    fuel: Optional[float]= None
+    startMiles: Optional[str]= None
+    endMiles: Optional[str]= None
+    fuel: Optional[str]= None
     coversheet_id: Optional[str]= None

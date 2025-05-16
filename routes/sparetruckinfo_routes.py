@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 from models.sparetruckinfo_model import SpareTruckInfoModel
 from config.database import sparetruckinfos_collection
+from config.database import routes_collection 
 from schemas.sparetruckinfo_scheme import sparetruckinfo_helper
 from utils.coversheet_updater import add_entity_to_coversheet
 from utils.response_helper import success_response, error_response
@@ -8,20 +9,48 @@ from bson import ObjectId
 
 router = APIRouter()
 
+from config.database import routes_collection  # Asegúrate de tenerlo importado
+
 @router.post("/")
 async def create_sparetruckinfo(sparetruckinfo: SpareTruckInfoModel):
     try:
         data = sparetruckinfo.model_dump()
         coversheet_id = data.pop("coversheet_id")
 
+        # 🔍 Agregar routeNumber a partir del route_id
+        route_id = data.get("route_id")
+        if route_id:
+            route_doc = await routes_collection.find_one({"_id": ObjectId(route_id)})
+            if route_doc and route_doc.get("routeNumber"):
+                data["routeNumber"] = route_doc["routeNumber"]
+
+        # 📦 Insertar el nuevo SpareTruckInfo con routeNumber incluido
         new = await sparetruckinfos_collection.insert_one(data)
         created = await sparetruckinfos_collection.find_one({"_id": new.inserted_id})
 
+        # 🔗 Asociar con coversheet
         await add_entity_to_coversheet(coversheet_id, "spareTruckInfo_id", str(new.inserted_id))
 
         return success_response(sparetruckinfo_helper(created), msg="SpareTruckInfo creado exitosamente")
+
     except Exception as e:
         return error_response(f"Error al crear SpareTruckInfo: {str(e)}")
+
+
+# @router.post("/")
+# async def create_sparetruckinfo(sparetruckinfo: SpareTruckInfoModel):
+#     try:
+#         data = sparetruckinfo.model_dump()
+#         coversheet_id = data.pop("coversheet_id")
+
+#         new = await sparetruckinfos_collection.insert_one(data)
+#         created = await sparetruckinfos_collection.find_one({"_id": new.inserted_id})
+
+#         await add_entity_to_coversheet(coversheet_id, "spareTruckInfo_id", str(new.inserted_id))
+
+#         return success_response(sparetruckinfo_helper(created), msg="SpareTruckInfo creado exitosamente")
+#     except Exception as e:
+#         return error_response(f"Error al crear SpareTruckInfo: {str(e)}")
 
 @router.get("/")
 async def get_all_sparetruckinfos():

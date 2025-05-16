@@ -10,9 +10,9 @@ class CoversheetModel(BaseModel):
     leaveYard: str  
     backInYard: str  
     clockOut: str  
-    startMiles: float
-    endMiles: float
-    fuel: float
+    startMiles: str
+    endMiles: str
+    fuel: str
     
     
     # SPARE TRUCK INFO -RELATIONSHIP

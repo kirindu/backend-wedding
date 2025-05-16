@@ -125,3 +125,27 @@ async def delete_coversheet(id: str):
         return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return error_response(f"Error al eliminar coversheet: {str(e)}")
+
+@router.get("/{id}/sparetruckinfo")
+async def get_sparetruckinfo_by_coversheet(id: str):
+    from config.database import sparetruckinfos_collection
+    from schemas.sparetruckinfo_scheme import sparetruckinfo_helper
+
+    try:
+        coversheet = await coversheets_collection.find_one({"_id": ObjectId(id)})
+        if not coversheet:
+            return error_response("Coversheet no encontrado", status_code=status.HTTP_404_NOT_FOUND)
+
+        spare_ids = coversheet.get("spareTruckInfo_id", [])
+        if not spare_ids:
+            return success_response([], msg="No hay SpareTruckInfos asociados")
+
+        results = []
+        for sp_id in spare_ids:
+            doc = await sparetruckinfos_collection.find_one({"_id": ObjectId(sp_id)})
+            if doc:
+                results.append(sparetruckinfo_helper(doc))
+
+        return success_response(results, msg="SpareTruckInfos obtenidos")
+    except Exception as e:
+        return error_response(f"Error al obtener SpareTruckInfos: {str(e)}")
