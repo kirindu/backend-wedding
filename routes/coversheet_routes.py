@@ -107,7 +107,7 @@ async def get_coversheet(id: str):
 @router.put("/{id}")
 async def update_coversheet(id: str, coversheet: CoversheetModel):
     try:
-        res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": coversheet.model_dump()})
+        res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": coversheet.model_dump(exclude_unset=True)})
         if res.matched_count == 0:
             return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
         updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
