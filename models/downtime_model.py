@@ -8,6 +8,7 @@ from datetime import datetime
 
 class DowntimeModel(BaseModel):
     truckNumber: Optional[str] = None
+    truck_id: Optional[str]= None
     startTime: Optional[str] = None
     endTime: Optional[str] = None
     downtimeReason: Optional[str] = None

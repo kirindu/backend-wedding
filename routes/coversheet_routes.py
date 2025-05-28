@@ -149,3 +149,27 @@ async def get_sparetruckinfo_by_coversheet(id: str):
         return success_response(results, msg="SpareTruckInfos obtenidos")
     except Exception as e:
         return error_response(f"Error al obtener SpareTruckInfos: {str(e)}")
+
+@router.get("/{id}/downtime")
+async def get_downtime_by_coversheet(id: str):
+    from config.database import downtimes_collection
+    from schemas.downtime_scheme import downtime_helper
+
+    try:
+        coversheet = await coversheets_collection.find_one({"_id": ObjectId(id)})
+        if not coversheet:
+            return error_response("Coversheet no encontrado", status_code=status.HTTP_404_NOT_FOUND)
+
+        downtime_ids = coversheet.get("downtime_id", [])
+        if not downtime_ids:
+            return success_response([], msg="No hay Downtimes asociados")
+
+        results = []
+        for do_id in downtime_ids:
+            doc = await downtimes_collection.find_one({"_id": ObjectId(do_id)})
+            if doc:
+                results.append(downtime_helper(doc))
+
+        return success_response(results, msg="Dowmtimes obtenidos")
+    except Exception as e:
+        return error_response(f"Error al obtener Dowmtimes: {str(e)}")
