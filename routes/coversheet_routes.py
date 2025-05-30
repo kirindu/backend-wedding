@@ -173,3 +173,27 @@ async def get_downtime_by_coversheet(id: str):
         return success_response(results, msg="Dowmtimes obtenidos")
     except Exception as e:
         return error_response(f"Error al obtener Dowmtimes: {str(e)}")
+
+@router.get("/{id}/load")
+async def get_load_by_coversheet(id: str):
+    from config.database import loads_collection
+    from schemas.load_scheme import load_helper
+
+    try:
+        coversheet = await coversheets_collection.find_one({"_id": ObjectId(id)})
+        if not coversheet:
+            return error_response("Coversheet no encontrado", status_code=status.HTTP_404_NOT_FOUND)
+
+        load_ids = coversheet.get("load_id", [])
+        if not load_ids:
+            return success_response([], msg="No hay Loads asociados")
+
+        results = []
+        for lo_id in load_ids:
+            doc = await loads_collection.find_one({"_id": ObjectId(lo_id)})
+            if doc:
+                results.append(load_helper(doc))
+
+        return success_response(results, msg="Loads obtenidos")
+    except Exception as e:
+        return error_response(f"Error al obtener Loads: {str(e)}")
