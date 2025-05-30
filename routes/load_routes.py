@@ -26,32 +26,33 @@ async def create_load_with_images(
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
     coversheet_id: str = Form(...),
-    images: List[UploadFile] = File(default=[])
+    images: List[UploadFile] = File(default=None)  # Cambiar default=[] a default=None para manejar mejor la ausencia de imágenes
 ):
     try:
         image_paths = []
         upload_dir = "uploads"
         os.makedirs(upload_dir, exist_ok=True)
 
-        for image in images:
-            if not image.content_type.startswith("image/"):
-                return error_response(
-                    f"El archivo '{image.filename}' no es una imagen válida.",
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
+        if images:  # Verificar si hay imágenes
+            for image in images:
+                if not image.content_type.startswith("image/"):
+                    return error_response(
+                        f"El archivo '{image.filename}' no es una imagen válida.",
+                        status_code=status.HTTP_400_BAD_REQUEST
+                    )
 
-            contents = await image.read()
-            if len(contents) > 1 * 1024 * 1024:
-                return error_response(
-                    f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB.",
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
+                contents = await image.read()
+                if len(contents) > 1 * 1024 * 1024:
+                    return error_response(
+                        f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB.",
+                        status_code=status.HTTP_400_BAD_REQUEST
+                    )
 
-            filename = f"{uuid.uuid4()}_{image.filename}"
-            file_path = os.path.join(upload_dir, filename)
-            with open(file_path, "wb") as buffer:
-                buffer.write(contents)
-            image_paths.append(file_path)
+                filename = f"{uuid.uuid4()}_{image.filename}"
+                file_path = os.path.join(upload_dir, filename)
+                with open(file_path, "wb") as buffer:
+                    buffer.write(contents)
+                image_paths.append(file_path)
 
         data = {
             "firstStopTime": firstStopTime,
@@ -65,7 +66,7 @@ async def create_load_with_images(
             "landFill": landFill,
             "ticketNumber": ticketNumber,
             "note": note,
-            "images": image_paths
+            "images": image_paths if image_paths else []  # Asegurar que 'images' siempre sea una lista
         }
 
         new = await loads_collection.insert_one(data)
@@ -75,7 +76,6 @@ async def create_load_with_images(
         return success_response(load_helper(created), msg="Load creada exitosamente")
     except Exception as e:
         return error_response(f"Error al crear load: {str(e)}")
-
 
 @router.put("/{id}")
 async def update_load_with_form(
@@ -91,7 +91,7 @@ async def update_load_with_form(
     landFill: Optional[str] = Form(None),
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
-    images: List[UploadFile] = File(default=[])
+    images: List[UploadFile] = File(default=None)
 ):
     try:
         existing = await loads_collection.find_one({"_id": ObjectId(id)})
@@ -102,25 +102,26 @@ async def update_load_with_form(
         upload_dir = "uploads"
         os.makedirs(upload_dir, exist_ok=True)
 
-        for image in images:
-            if not image.content_type.startswith("image/"):
-                return error_response(
-                    f"El archivo '{image.filename}' no es una imagen válida.",
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
+        if images:  # Verificar si hay nuevas imágenes
+            for image in images:
+                if not image.content_type.startswith("image/"):
+                    return error_response(
+                        f"El archivo '{image.filename}' no es una imagen válida.",
+                        status_code=status.HTTP_400_BAD_REQUEST
+                    )
 
-            contents = await image.read()
-            if len(contents) > 1 * 1024 * 1024:
-                return error_response(
-                    f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB.",
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
+                contents = await image.read()
+                if len(contents) > 1 * 1024 * 1024:
+                    return error_response(
+                        f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB.",
+                        status_code=status.HTTP_400_BAD_REQUEST
+                    )
 
-            filename = f"{uuid.uuid4()}_{image.filename}"
-            file_path = os.path.join(upload_dir, filename)
-            with open(file_path, "wb") as buffer:
-                buffer.write(contents)
-            image_paths.append(file_path)
+                filename = f"{uuid.uuid4()}_{image.filename}"
+                file_path = os.path.join(upload_dir, filename)
+                with open(file_path, "wb") as buffer:
+                    buffer.write(contents)
+                image_paths.append(file_path)
 
         data = {
             "firstStopTime": firstStopTime,
@@ -142,7 +143,6 @@ async def update_load_with_form(
         return success_response(load_helper(updated), msg="Load actualizada")
     except Exception as e:
         return error_response(f"Error al actualizar load: {str(e)}")
-
 
 @router.get("/")
 async def get_all_loads():
