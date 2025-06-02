@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, UploadFile, File, Form, HTTPException
 from models.load_model import LoadModel
 from config.database import loads_collection
+from config.database import routes_collection 
 from schemas.load_scheme import load_helper
 from utils.coversheet_updater import add_entity_to_coversheet
 from utils.response_helper import success_response, error_response
@@ -15,7 +16,7 @@ router = APIRouter()
 @router.post("/")
 async def create_load_with_images(
     firstStopTime: Optional[str] = Form(None),
-    route: Optional[str] = Form(None),
+    route_id: Optional[str] = Form(None),
     lastStopTime: Optional[str] = Form(None),
     landFillTimeIn: Optional[str] = Form(None),
     landFillTimeOut: Optional[str] = Form(None),
@@ -37,14 +38,14 @@ async def create_load_with_images(
             for image in images:
                 if not image.content_type.startswith("image/"):
                     return error_response(
-                        f"El archivo '{image.filename}' no es una imagen válida.",
+                        f"The file '{image.filename}' is not a image.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
                 contents = await image.read()
-                if len(contents) > 1 * 1024 * 1024:
+                if len(contents) > 3 * 1024 * 1024:
                     return error_response(
-                        f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB.",
+                        f"The file '{image.filename}' exceeds the maximum size of 3MB.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
@@ -56,7 +57,7 @@ async def create_load_with_images(
 
         data = {
             "firstStopTime": firstStopTime,
-            "route": route,
+            "route_id": route_id,
             "lastStopTime": lastStopTime,
             "landFillTimeIn": landFillTimeIn,
             "landFillTimeOut": landFillTimeOut,
@@ -68,20 +69,30 @@ async def create_load_with_images(
             "note": note,
             "images": image_paths if image_paths else []  # Asegurar que 'images' siempre sea una lista
         }
+        
+# 🔍 Obtener routeNumber si hay route_id
+        if route_id:
+            try:
+                route_doc = await routes_collection.find_one({"_id": ObjectId(route_id)})
+                if route_doc and route_doc.get("routeNumber"):
+                    data["routeNumber"] = route_doc["routeNumber"]
+            except Exception as lookup_error:
+                return error_response(f"Error al buscar routeNumber: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
+
 
         new = await loads_collection.insert_one(data)
         created = await loads_collection.find_one({"_id": new.inserted_id})
         await add_entity_to_coversheet(coversheet_id, "load_id", str(new.inserted_id))
 
-        return success_response(load_helper(created), msg="Load creada exitosamente")
+        return success_response(load_helper(created), msg="Load created successfully")
     except Exception as e:
-        return error_response(f"Error al crear load: {str(e)}")
+        return error_response(f"Error creating load: {str(e)}")
 
 @router.put("/{id}")
 async def update_load_with_form(
     id: str,
     firstStopTime: Optional[str] = Form(None),
-    route: Optional[str] = Form(None),
+    route_id: Optional[str] = Form(None),
     lastStopTime: Optional[str] = Form(None),
     landFillTimeIn: Optional[str] = Form(None),
     landFillTimeOut: Optional[str] = Form(None),
@@ -96,7 +107,7 @@ async def update_load_with_form(
     try:
         existing = await loads_collection.find_one({"_id": ObjectId(id)})
         if not existing:
-            return error_response("Load no encontrada", status_code=status.HTTP_404_NOT_FOUND)
+            return error_response("Load not found", status_code=status.HTTP_404_NOT_FOUND)
 
         image_paths = existing.get("images", [])
         upload_dir = "uploads"
@@ -111,9 +122,9 @@ async def update_load_with_form(
                     )
 
                 contents = await image.read()
-                if len(contents) > 1 * 1024 * 1024:
+                if len(contents) > 3 * 1024 * 1024:
                     return error_response(
-                        f"El archivo '{image.filename}' excede el tamaño máximo permitido de 1 MB.",
+                        f"The image '{image.filename}' exceeds the maximum allowed size of 3 MB.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
@@ -125,7 +136,7 @@ async def update_load_with_form(
 
         data = {
             "firstStopTime": firstStopTime,
-            "route": route,
+            "route_id": route_id,
             "lastStopTime": lastStopTime,
             "landFillTimeIn": landFillTimeIn,
             "landFillTimeOut": landFillTimeOut,
@@ -137,12 +148,21 @@ async def update_load_with_form(
             "note": note,
             "images": image_paths
         }
+        
+        if route_id:
+            try:
+                route_doc = await routes_collection.find_one({"_id": ObjectId(route_id)})
+                if route_doc and route_doc.get("routeNumber"):
+                    data["routeNumber"] = route_doc["routeNumber"]
+            except Exception as lookup_error:
+                return error_response(f"Error al buscar routeNumber: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
+
 
         res = await loads_collection.update_one({"_id": ObjectId(id)}, {"$set": data})
         updated = await loads_collection.find_one({"_id": ObjectId(id)})
         return success_response(load_helper(updated), msg="Load actualizada")
     except Exception as e:
-        return error_response(f"Error al actualizar load: {str(e)}")
+        return error_response(f"Error updating load: {str(e)}")
 
 @router.get("/")
 async def get_all_loads():

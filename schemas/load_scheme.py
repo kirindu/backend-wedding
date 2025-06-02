@@ -3,7 +3,8 @@ def load_helper(load) -> dict:
     return {
         "id": str(load["_id"]),
         "firstStopTime": load["firstStopTime"],
-        "route": load["route"],
+        "route_id": load["route_id"],
+        "routeNumber": load.get("routeNumber", ""),
         "lastStopTime": load["lastStopTime"],
         "landFillTimeIn": load["landFillTimeIn"],
         "landFillTimeOut": load["landFillTimeOut"],

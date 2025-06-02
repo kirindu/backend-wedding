@@ -9,8 +9,6 @@ from bson import ObjectId
 
 router = APIRouter()
 
-from config.database import routes_collection  # Asegúrate de tenerlo importado
-
 @router.post("/")
 async def create_sparetruckinfo(sparetruckinfo: SpareTruckInfoModel):
     try:

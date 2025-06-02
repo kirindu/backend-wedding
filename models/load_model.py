@@ -8,7 +8,7 @@ from datetime import datetime
 
 class LoadModel(BaseModel):
     firstStopTime: Optional[str]= None
-    route: Optional[str]= None
+    route_id: Optional[str]= None
     lastStopTime: Optional[str]= None
     landFillTimeIn: Optional[str]= None
     landFillTimeOut: Optional[str]= None
