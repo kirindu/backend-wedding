@@ -41,6 +41,7 @@ async def add_process_time_header(request: Request, call_next):
 # Incluimos los orígenes permitidos en la configuración de CORS
 # Si quiere permitir todos los orígenes, puedes usar unicamente ["*"]
 origins = [
+    "https://coversheet-app.onrender.com",
     "http://www.render.com",
     "https://www.acedisposal.com",
     "http://localhost",
