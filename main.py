@@ -13,6 +13,7 @@ from config.database import client
 from routes.route_routes import router as route_router
 from routes.truck_routes import router as truck_router
 from routes.driver_routes import router as driver_router
+from routes.landfill_routes import router as landfill_router
 
 from routes.coversheet_routes import router as coversheet_router
 from routes.sparetruckinfo_routes import router as sparetruckinfo_router
@@ -71,6 +72,7 @@ app.include_router(email_router, prefix="/api/utils", tags=["Email"])
 app.include_router(route_router, prefix="/api/routes", tags=["Routes"])
 app.include_router(truck_router, prefix="/api/trucks", tags=["Trucks"])
 app.include_router(driver_router, prefix="/api/drivers", tags=["Drivers"])
+app.include_router(landfill_router, prefix="/api/landfills", tags=["Landfills"])
 
 app.include_router(coversheet_router, prefix="/api/coversheets", tags=["Coversheets"])
 app.include_router(sparetruckinfo_router, prefix="/api/sparetruckinfo", tags=["SpareTruckInfo"])

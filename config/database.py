@@ -23,6 +23,7 @@ async def ping_database():
 
 trucks_collection = database.trucks
 drivers_collection = database.drivers
+landfills_collection = database.landfills
 users_collection = database.users
 routes_collection = database.routes
 
