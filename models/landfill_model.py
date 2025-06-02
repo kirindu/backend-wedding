@@ -6,5 +6,5 @@ from datetime import datetime, timezone
 
 
 class LandFillModel(BaseModel):
-    name: Optional[str]= None
+    landfillName: Optional[str]= None
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))

@@ -11,7 +11,8 @@ def load_helper(load) -> dict:
         "grossWeight": load["grossWeight"],
         "tareWeight": load["tareWeight"],
         "tons": load["tons"],
-        "landFill": load["landFill"],
+        "landFill_id": load["landFill_id"],
+        "landfillName": load.get("landfillName", ""),
         "ticketNumber": load["ticketNumber"],
         "note": load["note"],
         "images": load.get("images", [])

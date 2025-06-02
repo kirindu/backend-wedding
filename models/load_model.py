@@ -15,7 +15,7 @@ class LoadModel(BaseModel):
     grossWeight: Optional[float]= None
     tareWeight: Optional[float]= None
     tons: Optional[float]= None
-    landFill: Optional[str]= None
+    landFill_id: Optional[str]= None
     ticketNumber: Optional[str]= None
     note: Optional[str]= None
     
