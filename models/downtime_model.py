@@ -4,8 +4,6 @@ from datetime import datetime
 from bson import ObjectId
 from datetime import datetime
 
-
-
 class DowntimeModel(BaseModel):
     truckNumber: Optional[str] = None
     truck_id: Optional[str]= None
