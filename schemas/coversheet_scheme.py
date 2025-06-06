@@ -21,6 +21,11 @@ def coversheet_helper(coversheet) -> dict:
         "route_id": coversheet["route_id"],
         "driver_id": coversheet["driver_id"],
         
+        # Additional fields
+        "truckNumber": coversheet.get("truckNumber", ""),
+        "routeNumber": coversheet.get("routeNumber", ""),
+        "driverName": coversheet.get("driverName", ""),
+        
         # FIELDS
         "date": coversheet["date"].isoformat() if coversheet.get("date") else None,
         "notes": coversheet["notes"],
