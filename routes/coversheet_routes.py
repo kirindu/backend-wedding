@@ -4,6 +4,7 @@ from config.database import coversheets_collection
 from schemas.coversheet_scheme import coversheet_helper
 from config.dependencies import get_current_user
 from utils.response_helper import success_response, error_response
+from datetime import datetime, timedelta
 
 from schemas.load_scheme import load_helper
 from schemas.downtime_scheme import downtime_helper
@@ -74,16 +75,6 @@ async def get_coversheet_with_details(id: str):
         return error_response(f"Error al obtener coversheet: {str(e)}")
 
 
-# @router.post("/")
-# async def create_coversheet(coversheet: CoversheetModel):
-#     try:
-#         new = await coversheets_collection.insert_one(coversheet.model_dump())
-#         created = await coversheets_collection.find_one({"_id": new.inserted_id})
-#         return success_response(coversheet_helper(created), msg="Coversheet creada exitosamente")
-#     except Exception as e:
-#         return error_response(f"Error al crear coversheet: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 @router.post("/")
 async def create_coversheet(coversheet: CoversheetModel):
     try:
@@ -126,7 +117,34 @@ async def get_all_coversheets():
     except Exception as e:
         return error_response(f"Error al obtener coversheets: {str(e)}")
 
+from datetime import datetime, timedelta
+from fastapi import Query
 
+
+@router.get("/by-date/{date}")
+async def get_coversheets_by_date(date: str):
+    try:
+        # Convertir string a datetime
+        try:
+            query_date = datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            return error_response("Formato de fecha inválido. Usa YYYY-MM-DD", status_code=status.HTTP_400_BAD_REQUEST)
+
+        # Rango de fecha del día completo
+        start = datetime(query_date.year, query_date.month, query_date.day)
+        end = start + timedelta(days=1)
+
+        # Buscar coversheets en ese rango
+        coversheets = [
+            coversheet_helper(c)
+            async for c in coversheets_collection.find({
+                "date": {"$gte": start, "$lt": end}
+            })
+        ]
+
+        return success_response(coversheets, msg=f"Coversheets del día {date} obtenidos")
+    except Exception as e:
+        return error_response(f"Error al obtener coversheets por fecha: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 @router.get("/{id}")
 async def get_coversheet(id: str):
     try:
@@ -138,23 +156,12 @@ async def get_coversheet(id: str):
         return error_response(f"Error al obtener coversheet: {str(e)}")
 
 
-# @router.put("/{id}")
-# async def update_coversheet(id: str, coversheet: CoversheetModel):
-#     try:
-#         res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": coversheet.model_dump(exclude_unset=True)})
-#         if res.matched_count == 0:
-#             return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
-#         updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
-#         return success_response(coversheet_helper(updated), msg="Coversheet actualizada")
-#     except Exception as e:
-#         return error_response(f"Error al actualizar coversheet: {str(e)}")
-
 @router.put("/{id}")
 async def update_coversheet(id: str, coversheet: CoversheetModel):
     try:
         data = coversheet.model_dump(exclude_unset=True)
 
-        # Fetch truckNumber from trucks_collection if truck_id is provided
+        # Fetch truckNumber from trucks_collection if truck_id is provided  
         truck_id = data.get("truck_id")
         if truck_id:
             truck_doc = await trucks_collection.find_one({"_id": ObjectId(truck_id)})
