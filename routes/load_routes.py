@@ -44,9 +44,9 @@ async def create_load_with_images(
                     )
 
                 contents = await image.read()
-                if len(contents) > 3 * 1024 * 1024:
+                if len(contents) > 5 * 1024 * 1024:
                     return error_response(
-                        f"The file '{image.filename}' exceeds the maximum size of 3MB.",
+                        f"The file '{image.filename}' exceeds the maximum size of 5MB.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
@@ -78,7 +78,7 @@ async def create_load_with_images(
                 if route_doc and route_doc.get("routeNumber"):
                     data["routeNumber"] = route_doc["routeNumber"]
             except Exception as lookup_error:
-                return error_response(f"Error al buscar routeNumber: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
+                return error_response(f"Error al buscar routeN umber: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
             
             
 # 🔍 Obtener landfillName si hay landfill_id
@@ -133,9 +133,9 @@ async def update_load_with_form(
                     )
 
                 contents = await image.read()
-                if len(contents) > 3 * 1024 * 1024:
+                if len(contents) > 5 * 1024 * 1024:
                     return error_response(
-                        f"The image '{image.filename}' exceeds the maximum allowed size of 3 MB.",
+                        f"The image '{image.filename}' exceeds the maximum allowed size of 5MB.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
