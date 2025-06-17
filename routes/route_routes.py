@@ -19,7 +19,7 @@ async def create_route(route: RouteModel):
 @router.get("/")
 async def get_all_routes():
     try:
-        routes = [route_helper(route) async for route in routes_collection.find()]
+        routes = [route_helper(route) async for route in routes_collection.find({"active": True})]
         return success_response(routes, msg="Listado de rutas obtenido")
     except Exception as e:
         return error_response(f"Error al obtener rutas: {str(e)}")
