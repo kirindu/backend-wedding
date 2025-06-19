@@ -19,7 +19,7 @@ async def create_truck(truck: TruckModel):
 @router.get("/")
 async def get_all_trucks():
     try:
-        result = [truck_helper(truck) async for truck in trucks_collection.find().sort("truckNumber", 1)]
+        result = [truck_helper(truck) async for truck in trucks_collection.find()]
         return success_response(result, msg="Lista de trucks obtenida")
     except Exception as e:
         return error_response(f"Error al obtener trucks: {str(e)}")
