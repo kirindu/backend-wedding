@@ -40,7 +40,7 @@ async def create_driver(driver: DriverModel):
 @router.get("/")
 async def get_all_drivers():
     try:
-        drivers = [driver_helper(driver) async for driver in drivers_collection.find()]
+        drivers = [driver_helper(driver) async for driver in drivers_collection.find().sort("name", 1)]
         return success_response(drivers, msg="Lista de drivers obtenida")
     except Exception as e:
         return error_response(f"Error al obtener los drivers: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
