@@ -21,7 +21,7 @@ async def create_landfill(landfill: LandFillModel):
 @router.get("/")
 async def get_all_landfills():
     try:
-        landfills = [landfill_helper(landfill) async for landfill in landfills_collection.find()]
+        landfills = [landfill_helper(landfill) async for landfill in landfills_collection.find().sort("landfillName", 1)]
         return success_response(landfills, msg="Lista de landfills obtenida")
     except Exception as e:
         return error_response(f"Error al obtener los landfills: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
