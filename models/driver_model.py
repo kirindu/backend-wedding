@@ -9,6 +9,6 @@ from datetime import datetime, timezone
 class DriverModel(BaseModel):
     name: Optional[str]= None
     email: EmailStr
-    rol: Optional[str]= None
+    rol: str = Field(default="Driver")
     password: str
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
