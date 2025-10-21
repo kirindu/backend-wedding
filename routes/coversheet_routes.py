@@ -156,40 +156,85 @@ async def get_coversheet(id: str):
         return error_response(f"Error al obtener coversheet: {str(e)}")
 
 
+# @router.put("/{id}")
+# async def update_coversheet(id: str, coversheet: CoversheetModel):
+#     try:
+#         data = coversheet.model_dump(exclude_unset=True)
+
+#         # Fetch truckNumber from trucks_collection if truck_id is provided  
+#         truck_id = data.get("truck_id")
+#         if truck_id:
+#             truck_doc = await trucks_collection.find_one({"_id": ObjectId(truck_id)})
+#             if truck_doc and truck_doc.get("truckNumber"):
+#                 data["truckNumber"] = truck_doc["truckNumber"]
+
+#         # Fetch routeNumber from routes_collection if route_id is provided
+#         route_id = data.get("route_id")
+#         if route_id:
+#             route_doc = await routes_collection.find_one({"_id": ObjectId(route_id)})
+#             if route_doc and route_doc.get("routeNumber"):
+#                 data["routeNumber"] = route_doc["routeNumber"]
+
+#         # Fetch driverName from drivers_collection if driver_id is provided
+#         driver_id = data.get("driver_id")
+#         if driver_id:
+#             driver_doc = await drivers_collection.find_one({"_id": ObjectId(driver_id)})
+#             if driver_doc and driver_doc.get("name"):
+#                 data["driverName"] = driver_doc["name"]
+
+#         # Update the document with populated fields
+#         res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": data})
+#         if res.matched_count == 0:
+#             return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
+#         updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
+#         return success_response(coversheet_helper(updated), msg="Coversheet actualizada")
+#     except Exception as e:
+#         return error_response(f"Error al actualizar coversheet: {str(e)}")
+
 @router.put("/{id}")
 async def update_coversheet(id: str, coversheet: CoversheetModel):
     try:
         data = coversheet.model_dump(exclude_unset=True)
 
-        # Fetch truckNumber from trucks_collection if truck_id is provided  
+        # 🔒 Evitar que 'date' sea actualizado
+        if "date" in data:
+            del data["date"]
+
+        # 🔄 Actualizar la fecha de modificación
+        from datetime import datetime, timezone
+        data["updatedAt"] = datetime.now(timezone.utc)
+
+        # Fetch truckNumber si se actualizó truck_id  
         truck_id = data.get("truck_id")
         if truck_id:
             truck_doc = await trucks_collection.find_one({"_id": ObjectId(truck_id)})
             if truck_doc and truck_doc.get("truckNumber"):
                 data["truckNumber"] = truck_doc["truckNumber"]
 
-        # Fetch routeNumber from routes_collection if route_id is provided
+        # Fetch routeNumber si se actualizó route_id
         route_id = data.get("route_id")
         if route_id:
             route_doc = await routes_collection.find_one({"_id": ObjectId(route_id)})
             if route_doc and route_doc.get("routeNumber"):
                 data["routeNumber"] = route_doc["routeNumber"]
 
-        # Fetch driverName from drivers_collection if driver_id is provided
+        # Fetch driverName si se actualizó driver_id
         driver_id = data.get("driver_id")
         if driver_id:
             driver_doc = await drivers_collection.find_one({"_id": ObjectId(driver_id)})
             if driver_doc and driver_doc.get("name"):
                 data["driverName"] = driver_doc["name"]
 
-        # Update the document with populated fields
+        # 💾 Actualizar documento
         res = await coversheets_collection.update_one({"_id": ObjectId(id)}, {"$set": data})
         if res.matched_count == 0:
             return error_response("Coversheet no encontrada", status_code=status.HTTP_404_NOT_FOUND)
+
         updated = await coversheets_collection.find_one({"_id": ObjectId(id)})
-        return success_response(coversheet_helper(updated), msg="Coversheet actualizada")
+        return success_response(coversheet_helper(updated), msg="Coversheet actualizada exitosamente")
     except Exception as e:
         return error_response(f"Error al actualizar coversheet: {str(e)}")
+
 
 
 @router.delete("/{id}")
