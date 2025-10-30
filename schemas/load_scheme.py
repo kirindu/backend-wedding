@@ -13,6 +13,8 @@ def load_helper(load) -> dict:
         "tons": load["tons"],
         "landFill_id": load["landFill_id"],
         "landfillName": load.get("landfillName", ""),
+        "material_id": load["material_id"],
+        "materialName": load.get("materialName", ""),
         "ticketNumber": load["ticketNumber"],
         "note": load["note"],
         "images": load.get("images", [])

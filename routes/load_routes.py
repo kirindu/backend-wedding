@@ -2,7 +2,8 @@ from fastapi import APIRouter, status, UploadFile, File, Form, HTTPException
 from models.load_model import LoadModel
 from config.database import loads_collection
 from config.database import routes_collection
-from config.database import landfills_collection  
+from config.database import landfills_collection
+from config.database import materials_collection  
 from schemas.load_scheme import load_helper
 from utils.coversheet_updater import add_entity_to_coversheet
 from utils.response_helper import success_response, error_response
@@ -25,6 +26,7 @@ async def create_load_with_images(
     tareWeight: Optional[float] = Form(None),
     tons: Optional[float] = Form(None),
     landFill_id: Optional[str] = Form(None),
+    material_id: Optional[str] = Form(None),
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
     coversheet_id: str = Form(...),
@@ -66,6 +68,7 @@ async def create_load_with_images(
             "tareWeight": tareWeight,
             "tons": tons,
             "landFill_id": landFill_id,
+            "material_id": material_id,
             "ticketNumber": ticketNumber,
             "note": note,
             "images": image_paths if image_paths else []  # Asegurar que 'images' siempre sea una lista
@@ -91,6 +94,16 @@ async def create_load_with_images(
                 return error_response(f"Error al buscar landfillName: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
 
 
+    # 🔍 Obtener materialName si hay material_id
+        if material_id:
+            try:
+                material_doc = await materials_collection.find_one({"_id": ObjectId(material_id)})
+                if material_doc and material_doc.get("materialName"):
+                    data["materialName"] = material_doc["materialName"]
+            except Exception as lookup_error:
+                return error_response(f"Error al buscar materialName: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
+
+
         new = await loads_collection.insert_one(data)
         created = await loads_collection.find_one({"_id": new.inserted_id})
         await add_entity_to_coversheet(coversheet_id, "load_id", str(new.inserted_id))
@@ -98,6 +111,7 @@ async def create_load_with_images(
         return success_response(load_helper(created), msg="Load created successfully")
     except Exception as e:
         return error_response(f"Error creating load: {str(e)}")
+    
 
 @router.put("/{id}")
 async def update_load_with_form(
@@ -111,6 +125,7 @@ async def update_load_with_form(
     tareWeight: Optional[float] = Form(None),
     tons: Optional[float] = Form(None),
     landFill_id: Optional[str] = Form(None),
+    material_id: Optional[str] = Form(None),
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=None)
@@ -155,6 +170,7 @@ async def update_load_with_form(
             "tareWeight": tareWeight,
             "tons": tons,
             "landFill_id": landFill_id,
+            "material_id": material_id,
             "ticketNumber": ticketNumber,
             "note": note,
             "images": image_paths
@@ -179,14 +195,15 @@ async def update_load_with_form(
             except Exception as lookup_error:
                 return error_response(f"Error al buscar landfillName: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
             
-            # 🔍 Obtener landfillName si hay landfill_id
-        if landFill_id:
+            
+            # 🔍 Obtener materialName si hay material_id
+        if material_id:
             try:
-                landfill_doc = await landfills_collection.find_one({"_id": ObjectId(landFill_id)})
-                if landfill_doc and landfill_doc.get("landfillName"):
-                    data["landfillName"] = landfill_doc["landfillName"]
+                material_doc = await materials_collection.find_one({"_id": ObjectId(material_id)})
+                if material_doc and material_doc.get("materialName"):
+                    data["materialName"] = material_doc["materialName"]
             except Exception as lookup_error:
-                return error_response(f"Error al buscar landfillName: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
+                return error_response(f"Error al buscar materialName: {str(lookup_error)}", status_code=status.HTTP_400_BAD_REQUEST)
 
 
         res = await loads_collection.update_one({"_id": ObjectId(id)}, {"$set": data})

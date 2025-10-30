@@ -16,6 +16,7 @@ class LoadModel(BaseModel):
     tareWeight: Optional[float]= None
     tons: Optional[float]= None
     landFill_id: Optional[str]= None
+    material_id: Optional[str]= None
     ticketNumber: Optional[str]= None
     note: Optional[str]= None
     
