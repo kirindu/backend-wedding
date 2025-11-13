@@ -13,6 +13,8 @@ class CoversheetModel(BaseModel):
     startMiles: str
     endMiles: str
     fuel: str
+    clockInTrainee: str
+    clockOutTrainee: str 
     
     
     # SPARE TRUCK INFO -RELATIONSHIP

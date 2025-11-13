@@ -10,6 +10,8 @@ def coversheet_helper(coversheet) -> dict:
         "startMiles": coversheet["startMiles"],
         "endMiles": coversheet["endMiles"],
         "fuel": coversheet["fuel"],
+        "clockInTrainee": coversheet["clockInTrainee"],
+        "clockOutTrainee": coversheet["clockOutTrainee"],   
         
         # MULTIPLE RELATIONSHIPS (listas)
         "spareTruckInfo_id": coversheet.get("spareTruckInfo_id", []),
