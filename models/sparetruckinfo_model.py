@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 from datetime import datetime
@@ -15,3 +16,7 @@ class SpareTruckInfoModel(BaseModel):
     endMiles: Optional[str]= None
     fuel: Optional[str]= None
     coversheet_id: Optional[str]= None
+    
+        # OTHER FIELDS
+    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
+    updatedAt: Optional[datetime] = None

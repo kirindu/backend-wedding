@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, timezone
@@ -32,9 +33,9 @@ class CoversheetModel(BaseModel):
     driver_id: str
     
     # FIELDS
-    date: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    date: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
     notes: Optional[str] = None
-    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
     updatedAt: Optional[datetime] = None
     
     

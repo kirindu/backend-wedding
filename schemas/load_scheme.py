@@ -17,5 +17,9 @@ def load_helper(load) -> dict:
         "materialName": load.get("materialName", ""),
         "ticketNumber": load["ticketNumber"],
         "note": load["note"],
-        "images": load.get("images", [])
+        "images": load.get("images", []),
+        
+                # AUDIT FIELDS  
+        "createdAt": load["createdAt"].isoformat() if load.get("createdAt") else None,
+        "updatedAt": load["updatedAt"].isoformat() if load.get("updatedAt") else None   
     }   

@@ -6,5 +6,12 @@ def downtime_helper(downtime) -> dict:
         "truckNumber": downtime["truckNumber"],
         "startTime": downtime["startTime"],
         "endTime": downtime["endTime"],
-        "downtimeReason": downtime["downtimeReason"]
+        "downtimeReason": downtime["downtimeReason"],
+        
+              # AUDIT FIELDS
+        
+        "createdAt": downtime["createdAt"].isoformat() if downtime.get("createdAt") else None,
+        "updatedAt": downtime["updatedAt"].isoformat() if downtime.get("updatedAt") else None
+        
+        
     }

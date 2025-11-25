@@ -31,6 +31,8 @@ def coversheet_helper(coversheet) -> dict:
         # FIELDS
         "date": coversheet["date"].isoformat() if coversheet.get("date") else None,
         "notes": coversheet["notes"],
+        
+        # AUDIT FIELDS
         "createdAt": coversheet["createdAt"].isoformat() if coversheet.get("createdAt") else None,
         "updatedAt": coversheet["updatedAt"].isoformat() if coversheet.get("updatedAt") else None
         
