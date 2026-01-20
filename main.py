@@ -33,13 +33,6 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    response = await call_next(request)
-    print("Hola desde el middleware")
-    return response
-
 # Incluimos los orígenes permitidos en la configuración de CORS
 # Si quiere permitir todos los orígenes, puedes usar unicamente ["*"]
 origins = [
@@ -48,7 +41,12 @@ origins = [
     "https://www.acedisposal.com",
     "http://localhost",
     "http://localhost:8080",
-    "http://localhost:5173"
+    "http://127.0.0.1:8080",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3500",  # <--- AGREGA ESTE (El que sale en tu error)
+    "http://127.0.0.1:3500",  # <--- AGREGA ESTE por seguridad
+    "http://[::1]:5173",      # <--- IPv6 de Windows para el frontend
 ]
 
 app.add_middleware(
@@ -58,6 +56,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    response = await call_next(request)
+    print("Hola desde el middleware")
+    return response
+
 
 # Sirve archivos estáticos desde la carpeta 'uploads'
 if not os.path.exists("uploads"):
