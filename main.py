@@ -37,6 +37,7 @@ app = FastAPI(lifespan=lifespan)
 # Si quiere permitir todos los orígenes, puedes usar unicamente ["*"]
 origins = [
     "https://coversheet-app.onrender.com",
+    "https://coversheet.kizunadata.cloud",
     "http://www.render.com",
     "https://www.acedisposal.com",
     "http://localhost",
