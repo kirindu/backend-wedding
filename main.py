@@ -30,7 +30,6 @@ async def lifespan(application: FastAPI):
     await ping_database()
     yield
     
-
 app = FastAPI(lifespan=lifespan)
 
 # Incluimos los orígenes permitidos en la configuración de CORS
