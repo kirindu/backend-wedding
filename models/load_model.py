@@ -1,29 +1,30 @@
 from zoneinfo import ZoneInfo
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 from bson import ObjectId
-from datetime import datetime
-
 
 
 class LoadModel(BaseModel):
-    firstStopTime: Optional[str]= None
-    route_id: Optional[str]= None
-    lastStopTime: Optional[str]= None
-    landFillTimeIn: Optional[str]= None
-    landFillTimeOut: Optional[str]= None
-    grossWeight: Optional[float]= None
-    tareWeight: Optional[float]= None
-    tons: Optional[float]= None
-    landFill_id: Optional[str]= None
-    material_id: Optional[str]= None
-    ticketNumber: Optional[str]= None
-    note: Optional[str]= None
+    firstStopTime: Optional[str] = None
+    route_id: Optional[str] = None
+    lastStopTime: Optional[str] = None
+    landFillTimeIn: Optional[str] = None
+    landFillTimeOut: Optional[str] = None
+    grossWeight: Optional[float] = None
+    tareWeight: Optional[float] = None
+    tons: Optional[float] = None
+    landFill_id: Optional[str] = None
+    material_id: Optional[str] = None
+    ticketNumber: Optional[str] = None
+    note: Optional[str] = None
     
-        # OTHER FIELDS
+    # 🆕 Nueva referencia al padre coversheet
+    coversheet_ref_id: Optional[str] = None
+    
+    # 🆕 Campo para soft deletes
+    active: bool = Field(default=True)
+    
+    # OTHER FIELDS
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
     updatedAt: Optional[datetime] = None
- 
-    
- 

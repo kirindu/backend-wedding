@@ -1,7 +1,7 @@
 from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime, timezone
+from typing import Optional
+from datetime import datetime
 from bson import ObjectId
 
 
@@ -17,17 +17,11 @@ class CoversheetModel(BaseModel):
     # clockInTrainee: str
     # clockOutTrainee: str 
     
+    # RELATIONSHIPS (already removed the arrays)
+    # No more: spareTruckInfo_id, downtime_id, load_id arrays
+    # Children now reference back to coversheet via coversheet_ref_id
     
-    # SPARE TRUCK INFO -RELATIONSHIP
-    spareTruckInfo_id: Optional[List[str]] = []
-    
-    # DOWNTIME - RELATIONSHIP
-    downtime_id: Optional[List[str]] = []
-    
-    # LOAD - RELATIONSHIP
-    load_id: Optional[List[str]] = []
-    
-    # ANOTHER RELATIONSHIPS
+    # SINGLE RELATIONSHIPS
     truck_id: str
     route_id: str
     driver_id: str
@@ -35,7 +29,6 @@ class CoversheetModel(BaseModel):
     # FIELDS
     date: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
     notes: Optional[str] = None
+    active: bool = Field(default=True)  # For soft deletes
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
     updatedAt: Optional[datetime] = None
-    
-    

@@ -1,4 +1,3 @@
-
 def coversheet_helper(coversheet) -> dict:
     return {
         # TRUCK INFO
@@ -13,24 +12,23 @@ def coversheet_helper(coversheet) -> dict:
         # "clockInTrainee": coversheet["clockInTrainee"],
         # "clockOutTrainee": coversheet["clockOutTrainee"],   
         
-        # MULTIPLE RELATIONSHIPS (listas)
-        "spareTruckInfo_id": coversheet.get("spareTruckInfo_id", []),
-        "downtime_id": coversheet.get("downtime_id", []),
-        "load_id": coversheet.get("load_id", []),
+        # RELATIONSHIPS (arrays removed, children reference parent)
+        # No more: "spareTruckInfo_id", "downtime_id", "load_id"
         
-         # SINGLE RELATIONSHIPS
-        "truck_id": coversheet["truck_id"],
-        "route_id": coversheet["route_id"],
-        "driver_id": coversheet["driver_id"],
+        # SINGLE RELATIONSHIPS
+        "truck_id": str(coversheet["truck_id"]),
+        "route_id": str(coversheet["route_id"]),
+        "driver_id": str(coversheet["driver_id"]),
         
-        # Additional fields
+        # Additional fields (denormalized data)
         "truckNumber": coversheet.get("truckNumber", ""),
         "routeNumber": coversheet.get("routeNumber", ""),
         "driverName": coversheet.get("driverName", ""),
         
         # FIELDS
         "date": coversheet["date"].isoformat() if coversheet.get("date") else None,
-        "notes": coversheet["notes"],
+        "notes": coversheet.get("notes"),
+        "active": coversheet.get("active", True),
         
         # AUDIT FIELDS
         "createdAt": coversheet["createdAt"].isoformat() if coversheet.get("createdAt") else None,
