@@ -9,16 +9,11 @@ def coversheet_helper(coversheet) -> dict:
         "startMiles": coversheet["startMiles"],
         "endMiles": coversheet["endMiles"],
         "fuel": coversheet["fuel"],
-        # "clockInTrainee": coversheet["clockInTrainee"],
-        # "clockOutTrainee": coversheet["clockOutTrainee"],   
-        
-        # RELATIONSHIPS (arrays removed, children reference parent)
-        # No more: "spareTruckInfo_id", "downtime_id", "load_id"
-        
+
         # SINGLE RELATIONSHIPS
-        "truck_id": str(coversheet["truck_id"]),
-        "route_id": str(coversheet["route_id"]),
-        "driver_id": str(coversheet["driver_id"]),
+        "truck_id": str(coversheet["truck_id"]) if coversheet.get("truck_id") else None,
+        "route_id": str(coversheet["route_id"]) if coversheet.get("route_id") else None,
+        "driver_id": str(coversheet["driver_id"]) if coversheet.get("driver_id") else None,
         
         # Additional fields (denormalized data)
         "truckNumber": coversheet.get("truckNumber", ""),
@@ -28,7 +23,9 @@ def coversheet_helper(coversheet) -> dict:
         # FIELDS
         "date": coversheet["date"].isoformat() if coversheet.get("date") else None,
         "notes": coversheet.get("notes"),
-        "active": coversheet.get("active", True),
+        
+        # SOFT DELETE FIELD
+        "active": coversheet.get("active", True),  # ✅ Campo de borrado lógico
         
         # AUDIT FIELDS
         "createdAt": coversheet["createdAt"].isoformat() if coversheet.get("createdAt") else None,

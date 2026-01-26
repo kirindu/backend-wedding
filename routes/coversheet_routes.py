@@ -75,36 +75,36 @@ async def expand_related_data(coversheet):
         )
 
 
-@router.get("/with-details")
-async def get_all_coversheets_with_details():
-    """Get all active coversheets with related data expanded"""
-    try:
-        # Only get active coversheets
-        coversheets = [
-            doc async for doc in coversheets_collection.find({"active": True})
-        ]
-        result = [await expand_related_data(c) for c in coversheets]
-        return success_response(result, msg="Coversheets con detalles obtenidas")
-    except Exception as e:
-        return error_response(f"Error al obtener coversheets con detalles: {str(e)}")
+# @router.get("/with-details")
+# async def get_all_coversheets_with_details():
+#     """Get all active coversheets with related data expanded"""
+#     try:
+#         # Only get active coversheets
+#         coversheets = [
+#             doc async for doc in coversheets_collection.find({"active": True})
+#         ]
+#         result = [await expand_related_data(c) for c in coversheets]
+#         return success_response(result, msg="Coversheets con detalles obtenidas")
+#     except Exception as e:
+#         return error_response(f"Error al obtener coversheets con detalles: {str(e)}")
 
 
-@router.get("/with-details/{id}")
-async def get_coversheet_with_details(id: str):
-    """Get a single active coversheet with related data expanded"""
-    try:
-        coversheet = await coversheets_collection.find_one({
-            "_id": ObjectId(id),
-            "active": True
-        })
-        if not coversheet:
-            return error_response(
-                "Coversheet no encontrada", 
-                status_code=status.HTTP_404_NOT_FOUND
-            )
-        return success_response(await expand_related_data(coversheet))
-    except Exception as e:
-        return error_response(f"Error al obtener coversheet: {str(e)}")
+# @router.get("/with-details/{id}")
+# async def get_coversheet_with_details(id: str):
+#     """Get a single active coversheet with related data expanded"""
+#     try:
+#         coversheet = await coversheets_collection.find_one({
+#             "_id": ObjectId(id),
+#             "active": True
+#         })
+#         if not coversheet:
+#             return error_response(
+#                 "Coversheet no encontrada", 
+#                 status_code=status.HTTP_404_NOT_FOUND
+#             )
+#         return success_response(await expand_related_data(coversheet))
+#     except Exception as e:
+#         return error_response(f"Error al obtener coversheet: {str(e)}")
 
 
 @router.post("/")

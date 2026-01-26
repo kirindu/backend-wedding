@@ -14,13 +14,7 @@ class CoversheetModel(BaseModel):
     startMiles: str
     endMiles: str
     fuel: str
-    # clockInTrainee: str
-    # clockOutTrainee: str 
-    
-    # RELATIONSHIPS (already removed the arrays)
-    # No more: spareTruckInfo_id, downtime_id, load_id arrays
-    # Children now reference back to coversheet via coversheet_ref_id
-    
+ 
     # SINGLE RELATIONSHIPS
     truck_id: str
     route_id: str
