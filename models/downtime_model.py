@@ -5,12 +5,14 @@ from datetime import datetime
 from bson import ObjectId
 
 
-class DowntimeModel(BaseModel):
-    truckNumber: Optional[str] = None
-    truck_id: Optional[str] = None
-    startTime: Optional[str] = None
-    endTime: Optional[str] = None
-    downtimeReason: Optional[str] = None
+class SpareTruckInfoModel(BaseModel):
+    spareTruckNumber: Optional[str] = None
+    route_id: Optional[str] = None
+    leaveYard: Optional[str] = None
+    backInYard: Optional[str] = None
+    startMiles: Optional[str] = None
+    endMiles: Optional[str] = None
+    fuel: Optional[str] = None
     
     # 🆕 Nueva referencia al padre (antes era coversheet_id)
     coversheet_ref_id: Optional[str] = None
