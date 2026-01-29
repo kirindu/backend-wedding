@@ -33,8 +33,8 @@ async def create_load_with_images(
     material_id: Optional[str] = Form(None),
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
-    coversheet_ref_id: str = Form(...),  # 🆕 Cambio de coversheet_id a coversheet_ref_id
-    images: List[UploadFile] = File(default=None)
+    coversheet_ref_id: str = Form(...),
+    images: Optional[List[UploadFile]] = File(None)  # ✅ Cambiado para aceptar None
 ):
     """
     Create a new load with optional images
@@ -42,31 +42,38 @@ async def create_load_with_images(
     solo guarda la referencia coversheet_ref_id en el load
     """
     try:
-        image_paths = []
+        image_paths = []  # ✅ Siempre inicializa como array vacío
         upload_dir = "uploads"
         os.makedirs(upload_dir, exist_ok=True)
 
-        # Procesar imágenes si existen
-        if images:
-            for image in images:
-                if not image.content_type.startswith("image/"):
-                    return error_response(
-                        f"The file '{image.filename}' is not an image.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+        # ✅ Procesar imágenes solo si existen Y no están vacías
+        if images and len(images) > 0:
+            # Verificar que el primer elemento no sea un archivo vacío
+            first_file = images[0]
+            if first_file.filename:  # ✅ Solo procesar si tiene nombre de archivo
+                for image in images:
+                    # Validar que sea una imagen
+                    if not image.content_type.startswith("image/"):
+                        return error_response(
+                            f"The file '{image.filename}' is not an image.",
+                            status_code=status.HTTP_400_BAD_REQUEST
+                        )
 
-                contents = await image.read()
-                if len(contents) > 5 * 1024 * 1024:
-                    return error_response(
-                        f"The file '{image.filename}' exceeds the maximum size of 5MB.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+                    contents = await image.read()
+                    
+                    # Validar tamaño solo si tiene contenido
+                    if len(contents) > 5 * 1024 * 1024:
+                        return error_response(
+                            f"The file '{image.filename}' exceeds the maximum size of 5MB.",
+                            status_code=status.HTTP_400_BAD_REQUEST
+                        )
 
-                filename = f"{uuid.uuid4()}_{image.filename}"
-                file_path = os.path.join(upload_dir, filename)
-                with open(file_path, "wb") as buffer:
-                    buffer.write(contents)
-                image_paths.append(file_path)
+                    # Guardar imagen
+                    filename = f"{uuid.uuid4()}_{image.filename}"
+                    file_path = os.path.join(upload_dir, filename)
+                    with open(file_path, "wb") as buffer:
+                        buffer.write(contents)
+                    image_paths.append(file_path)
 
         # Preparar datos del load
         data = {
@@ -79,7 +86,7 @@ async def create_load_with_images(
             "tons": tons,
             "ticketNumber": ticketNumber,
             "note": note,
-            "images": image_paths if image_paths else [],
+            "images": image_paths,  # ✅ Siempre será un array (vacío o con rutas)
             "createdAt": datetime.now(ZoneInfo("America/Denver")),
             "updatedAt": None
         }
@@ -157,7 +164,7 @@ async def update_load_with_form(
     material_id: Optional[str] = Form(None),
     ticketNumber: Optional[str] = Form(None),
     note: Optional[str] = Form(None),
-    images: List[UploadFile] = File(default=None)
+    images: Optional[List[UploadFile]] = File(None)  # ✅ Cambiado para aceptar None
 ):
     """Update an existing active load with optional new images"""
     try:
@@ -178,27 +185,29 @@ async def update_load_with_form(
         upload_dir = "uploads"
         os.makedirs(upload_dir, exist_ok=True)
 
-        # Agregar nuevas imágenes si existen
-        if images:
-            for image in images:
-                if not image.content_type.startswith("image/"):
-                    return error_response(
-                        f"El archivo '{image.filename}' no es una imagen válida.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+        # ✅ Agregar nuevas imágenes solo si existen Y no están vacías
+        if images and len(images) > 0:
+            first_file = images[0]
+            if first_file.filename:  # ✅ Solo procesar si tiene nombre de archivo
+                for image in images:
+                    if not image.content_type.startswith("image/"):
+                        return error_response(
+                            f"El archivo '{image.filename}' no es una imagen válida.",
+                            status_code=status.HTTP_400_BAD_REQUEST
+                        )
 
-                contents = await image.read()
-                if len(contents) > 5 * 1024 * 1024:
-                    return error_response(
-                        f"The image '{image.filename}' exceeds the maximum allowed size of 5MB.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+                    contents = await image.read()
+                    if len(contents) > 5 * 1024 * 1024:
+                        return error_response(
+                            f"The image '{image.filename}' exceeds the maximum allowed size of 5MB.",
+                            status_code=status.HTTP_400_BAD_REQUEST
+                        )
 
-                filename = f"{uuid.uuid4()}_{image.filename}"
-                file_path = os.path.join(upload_dir, filename)
-                with open(file_path, "wb") as buffer:
-                    buffer.write(contents)
-                image_paths.append(file_path)
+                    filename = f"{uuid.uuid4()}_{image.filename}"
+                    file_path = os.path.join(upload_dir, filename)
+                    with open(file_path, "wb") as buffer:
+                        buffer.write(contents)
+                    image_paths.append(file_path)
 
         # Preparar datos para actualización
         data = {
@@ -211,8 +220,8 @@ async def update_load_with_form(
             "tons": tons,
             "ticketNumber": ticketNumber,
             "note": note,
-            "images": image_paths,
-            "updatedAt": datetime.now(ZoneInfo("America/Denver"))  # 🆕 Actualizar timestamp
+            "images": image_paths,  # ✅ Siempre será un array
+            "updatedAt": datetime.now(ZoneInfo("America/Denver"))
         }
         
         # 🆕 NO permitir cambiar coversheet_ref_id o active
@@ -295,7 +304,7 @@ async def get_load(id: str):
     try:
         load = await loads_collection.find_one({
             "_id": ObjectId(id),
-            "active": True  # 🆕 Solo buscar activos
+            "active": True
         })
         if load:
             return success_response(load_helper(load), msg="Load encontrada")
