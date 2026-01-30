@@ -10,11 +10,13 @@ class SpareTruckInfoModel(BaseModel):
     route_id: Optional[str] = None
     leaveYard: Optional[str] = None
     backInYard: Optional[str] = None
-    startMiles: Optional[str] = None
-    endMiles: Optional[str] = None
-    fuel: Optional[str] = None
     
-    # 🆕 NOMBRE CORRECTO (coversheet_ref_id, no coversheet_id)
+    # ✅ OPTIMIZADO: Cambiados de str a int/float
+    startMiles: Optional[int] = None  # ✅ int en lugar de str
+    endMiles: Optional[int] = None    # ✅ int en lugar de str
+    fuel: Optional[float] = None      # ✅ float en lugar de str (para decimales)
+    
+    # 🆕 Nueva referencia al padre coversheet
     coversheet_ref_id: Optional[str] = None
     
     # 🆕 Campo para soft deletes

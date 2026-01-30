@@ -11,9 +11,12 @@ class LoadModel(BaseModel):
     lastStopTime: Optional[str] = None
     landFillTimeIn: Optional[str] = None
     landFillTimeOut: Optional[str] = None
-    grossWeight: Optional[float] = None
-    tareWeight: Optional[float] = None
-    tons: Optional[float] = None
+    
+    # ✅ OPTIMIZADO: Cambiados de str a float
+    grossWeight: Optional[float] = None   # ✅ float en lugar de str
+    tareWeight: Optional[float] = None    # ✅ float en lugar de str
+    tons: Optional[float] = None          # ✅ float en lugar de str
+    
     landFill_id: Optional[str] = None
     material_id: Optional[str] = None
     ticketNumber: Optional[str] = None
