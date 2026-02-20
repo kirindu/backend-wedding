@@ -2,7 +2,7 @@ from zoneinfo import ZoneInfo
 from fastapi import APIRouter, status, Depends
 from models.coversheet_model import CoverSheetModel
 from config.database import coversheets_collection
-from schemas.coversheet_scheme import coversheet_helper
+from schemas.incidentdetail_scheme import coversheet_helper
 from config.dependencies import get_current_user
 from utils.response_helper import success_response, error_response
 from datetime import datetime, timedelta
@@ -14,7 +14,7 @@ from schemas.downtime_scheme import downtime_helper
 from schemas.sparetruckinfo_scheme import sparetruckinfo_helper
 from schemas.truck_scheme import truck_helper
 from schemas.route_scheme import route_helper
-from schemas.driver_scheme import driver_helper
+from schemas.employee_scheme import driver_helper
 
 # Importación de Colecciones
 from config.database import (

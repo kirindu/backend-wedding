@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, UploadFile, File, Form, HTTPException
-from models.load_model import LoadModel
+from models.incidentdetail_model import LoadModel
 from config.database import (
     loads_collection,
     routes_collection,

@@ -21,16 +21,21 @@ async def ping_database():
     except Exception as e:
         print(Fore.RED + f"❌ Failed to connect to MongoDB: {e}")
 
-materials_collection = database.materials
+depts_collection = database.depts
+directions_collection = database.directions
+duringTheIncidents_collection = database.duringTheIncidents
+employees_collection = database.employees
+employeeSignatures_collection = database.employeeSignatures
+generalinformations_collection = database.generalinformations
+incidentDetails_collection = database.incidentDetails
+roadConditions_collection = database.roadConditions
+supervisors_collection = database.supervisors
+supervisorNotes_collection = database.supervisorNotes
 trucks_collection = database.trucks
-drivers_collection = database.drivers
-landfills_collection = database.landfills
+typeOfIncidents_collection = database.typeOfIncidents
 users_collection = database.users
-routes_collection = database.routes
+weatherConditions_collection = database.weatherConditions
+   
 
-sparetruckinfos_collection = database.sparetruckinfo
-downtimes_collection = database.downtime
-loads_collection = database.load
-notes_collection = database.notes
 
-coversheets_collection = database.coversheets
+

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, status, Form
 from fastapi.responses import JSONResponse
 from utils.response_helper import success_response, error_response
-from models.driver_model import DriverModel
+from models.employee_model import DriverModel
 from config.database import drivers_collection
-from schemas.driver_scheme import driver_helper
+from schemas.employee_scheme import driver_helper
 from config.auth import verify_password, create_access_token, hash_password
 from datetime import timedelta
 from bson import ObjectId

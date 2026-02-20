@@ -13,7 +13,7 @@ from config.database import client
 from routes.route_routes import router as route_router
 from routes.truck_routes import router as truck_router
 from routes.material_routes import router as material_router
-from routes.driver_routes import router as driver_router
+from routes.employee_routes import router as driver_router
 from routes.landfill_routes import router as landfill_router
 
 from routes.coversheet_routes import router as coversheet_router

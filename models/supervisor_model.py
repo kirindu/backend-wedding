@@ -5,6 +5,6 @@ from datetime import datetime, timezone
 from bson import ObjectId
 
 
-class MaterialModel(BaseModel):
-    materialName: str
+class SupervisorModel(BaseModel):
+    supervisorName: str
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))

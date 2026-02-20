@@ -1,19 +1,18 @@
 from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from bson import ObjectId
 
 
-class DowntimeModel(BaseModel):
-    truckNumber: Optional[str] = None
-    truck_id: Optional[str] = None
-    startTime: Optional[str] = None
-    endTime: Optional[str] = None
-    downtimeReason: Optional[str] = None
+class SupervisorNotesModel(BaseModel):
+
+ # ✅ SUPERVISOR NOTES FIELDS
     
-    # 🆕 Nueva referencia al padre (antes era coversheet_id)
-    coversheet_ref_id: Optional[str] = None
+    notes: Optional[str] = None
+   
+    # 🆕 referencia al padre
+    generalInformation_ref_id: Optional[str] = None
     
     # 🆕 Campo para soft deletes
     active: bool = Field(default=True)
