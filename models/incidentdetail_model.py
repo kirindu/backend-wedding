@@ -20,7 +20,6 @@ class IncidentDetailModel(BaseModel):
     listDatesOfIncidents: Optional[str] = None
     
     
-
     # 🆕 referencia al padre
     generalInformation_ref_id: Optional[str] = None
     
