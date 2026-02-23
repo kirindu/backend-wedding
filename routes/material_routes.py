@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from utils.response_helper import success_response, error_response
 from models.supervisor_model import MaterialModel
 from config.database import materials_collection
-from schemas.material_scheme import material_helper
+from schemas.roadcondition_scheme import material_helper
 from bson import ObjectId
 
 router = APIRouter()

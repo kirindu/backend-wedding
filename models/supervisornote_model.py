@@ -5,11 +5,11 @@ from datetime import datetime, timezone
 from bson import ObjectId
 
 
-class SupervisorNotesModel(BaseModel):
+class SupervisorNoteModel(BaseModel):
 
  # ✅ SUPERVISOR NOTES FIELDS
     
-    notes: Optional[str] = None
+    note: Optional[str] = None
    
     # 🆕 referencia al padre
     generalInformation_ref_id: Optional[str] = None
@@ -17,6 +17,8 @@ class SupervisorNotesModel(BaseModel):
     # 🆕 Campo para soft deletes
     active: bool = Field(default=True)
     
-    # OTHER FIELDS
+    # AUDIT FIELDS
+    createdBy: Optional[str] = None
+    updatedBy: Optional[str] = None  
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
-    updatedAt: Optional[datetime] = None
+    updatedAt: Optional[datetime] = None 

@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from utils.response_helper import success_response, error_response
 from models.dept_model import LandFillModel
 from config.database import landfills_collection
-from schemas.landfill_scheme import landfill_helper
+from schemas.dept_scheme import landfill_helper
 from bson import ObjectId
 
 router = APIRouter()

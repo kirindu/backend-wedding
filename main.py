@@ -16,7 +16,7 @@ from routes.material_routes import router as material_router
 from routes.employee_routes import router as driver_router
 from routes.landfill_routes import router as landfill_router
 
-from routes.coversheet_routes import router as coversheet_router
+from routes.generalinformation_routes import router as coversheet_router
 from routes.sparetruckinfo_routes import router as sparetruckinfo_router
 from routes.downtime_routes import router as downtime_router
 from routes.load_routes import router as load_router

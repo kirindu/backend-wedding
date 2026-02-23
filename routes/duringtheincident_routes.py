@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from models.duringtheincident_model import DowntimeModel
 from config.database import downtimes_collection, trucks_collection
-from schemas.downtime_scheme import downtime_helper
+from schemas.duringtheincident_scheme import during_the_incident_helper
 from utils.response_helper import success_response, error_response
 from datetime import datetime
 from zoneinfo import ZoneInfo

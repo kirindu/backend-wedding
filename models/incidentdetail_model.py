@@ -19,6 +19,9 @@ class IncidentDetailModel(BaseModel):
     incidentInThePastYear: Optional[bool] = None
     listDatesOfIncidents: Optional[str] = None
     
+    images: Optional[list] = []
+    image_path: Optional[str] = None
+    
     
     # 🆕 referencia al padre
     generalInformation_ref_id: Optional[str] = None
@@ -26,6 +29,8 @@ class IncidentDetailModel(BaseModel):
     # 🆕 Campo para soft deletes
     active: bool = Field(default=True)
     
-    # OTHER FIELDS
+    # AUDIT FIELDS
+    createdBy: Optional[str] = None
+    updatedBy: Optional[str] = None  
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
-    updatedAt: Optional[datetime] = None
+    updatedAt: Optional[datetime] = None 

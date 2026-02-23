@@ -5,5 +5,15 @@ def employee_helper(employee) -> dict:
         "employeeName": employee["employeeName"],
         "email": employee["email"],
         "rol": employee["rol"],
-        "createdAt": employee["createdAt"].isoformat() if "createdAt" in employee else None,
+        
+        # SOFT DELETE FIELD
+        "active": employee.get("active", True),  # ✅ Campo de borrado lógico
+        
+        # AUDIT FIELDS
+        
+        "createdBy" : str(employee["createdBy"]) if employee.get("createdBy") else None,
+        "updatedBy" : str(employee["updatedBy"]) if employee.get("updatedBy") else None,
+        "createdAt": employee["createdAt"].isoformat() if employee.get("createdAt") else None,
+        "updatedAt": employee["updatedAt"].isoformat() if employee.get("updatedAt") else None,
+
     }

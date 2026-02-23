@@ -19,8 +19,8 @@ class GeneralInformationModel(BaseModel):
     dept_id: Optional[str] = None
     supervisor_id: Optional[str] = None
     typeOfIncident_id: Optional[str] = None
-    location: Optional[str] = None
     
+    location: Optional[str] = None
     time: Optional[str] = None
     timeWorkedYears: Optional[int] = None
     timeWorkedMonths: Optional[int] = None
@@ -30,6 +30,8 @@ class GeneralInformationModel(BaseModel):
     # 🆕 Campo para soft deletes
     active: bool = Field(default=True)
     
-    # OTHER FIELDS
+    # AUDIT FIELDS
+    createdBy: Optional[str] = None
+    updatedBy: Optional[str] = None  
     createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
-    updatedAt: Optional[datetime] = None
+    updatedAt: Optional[datetime] = None 

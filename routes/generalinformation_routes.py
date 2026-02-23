@@ -1,6 +1,6 @@
 from zoneinfo import ZoneInfo
 from fastapi import APIRouter, status, Depends
-from models.coversheet_model import CoverSheetModel
+from models.generalinformation_model import GeneralInformationModel
 from config.database import coversheets_collection
 from schemas.incidentdetail_scheme import coversheet_helper
 from config.dependencies import get_current_user
@@ -9,11 +9,18 @@ from datetime import datetime, timedelta
 from bson import ObjectId
 
 # Importación de Helpers de otras colecciones
+
+from schemas.dept_scheme import dept_helper
+from schemas.truck_scheme import truck_helper
+from schemas.typeincident_scheme import type_incident_helper
+
+
+
 from schemas.load_scheme import load_helper
 from schemas.downtime_scheme import downtime_helper
 from schemas.sparetruckinfo_scheme import sparetruckinfo_helper
 from schemas.truck_scheme import truck_helper
-from schemas.route_scheme import route_helper
+from schemas.supervisornote_scheme import route_helper
 from schemas.employee_scheme import driver_helper
 
 # Importación de Colecciones

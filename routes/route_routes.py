@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from models.route_model import RouteModel
 from config.database import routes_collection
-from schemas.route_scheme import route_helper
+from schemas.supervisornote_scheme import route_helper
 from bson import ObjectId
 from utils.response_helper import success_response, error_response
 
