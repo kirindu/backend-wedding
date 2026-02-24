@@ -1,7 +1,8 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from fastapi import APIRouter, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from config.auth import verify_password, create_access_token, hash_password
-from datetime import timedelta
 from models.user_model import UserModel
 from config.database import users_collection
 from schemas.user_scheme import user_helper
@@ -11,6 +12,7 @@ from utils.response_helper import success_response, error_response
 
 router = APIRouter()
 
+
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
@@ -18,10 +20,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         if not user or not verify_password(form_data.password, user["password"]):
             return error_response("Credenciales inválidas", status_code=status.HTTP_401_UNAUTHORIZED)
 
-        access_token = create_access_token(
-            data={"sub": user["email"]}
-            #expires_delta=timedelta(minutes=60)
-        )
+        access_token = create_access_token(data={"sub": user["email"]})
 
         return success_response({
             "access_token": access_token,
@@ -42,19 +41,24 @@ async def create_user(user: UserModel):
     try:
         user_dict = user.model_dump()
         user_dict["password"] = hash_password(user_dict["password"])
+        user_dict["createdAt"] = datetime.now(ZoneInfo("America/Denver"))
+        user_dict["updatedAt"] = None
+
         new = await users_collection.insert_one(user_dict)
         created = await users_collection.find_one({"_id": new.inserted_id})
         return success_response(user_helper(created), msg="Usuario creado exitosamente")
     except Exception as e:
-        return error_response(f"Error al crear usuario: {str(e)}")
+        return error_response(f"Error al crear usuario: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @router.get("/")
 async def get_all_users():
     try:
-        users = [user_helper(user) async for user in users_collection.find()]
+        users = [user_helper(user) async for user in users_collection.find({"active": True}).sort("name", 1)]
         return success_response(users, msg="Lista de usuarios obtenida")
     except Exception as e:
-        return error_response(f"Error al obtener usuarios: {str(e)}")
+        return error_response(f"Error al obtener usuarios: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @router.get("/{id}")
 async def get_user(id: str):
@@ -66,11 +70,13 @@ async def get_user(id: str):
     except Exception as e:
         return error_response(f"Error al obtener usuario: {str(e)}")
 
+
 @router.put("/{id}")
 async def update_user(id: str, user: UserModel):
     try:
         user_dict = user.model_dump()
-        user_dict["password"] = hash_password(user_dict["password"])  # 👈 importante
+        user_dict["password"] = hash_password(user_dict["password"])
+        user_dict["updatedAt"] = datetime.now(ZoneInfo("America/Denver"))
 
         res = await users_collection.update_one({"_id": ObjectId(id)}, {"$set": user_dict})
         if res.matched_count == 0:
@@ -80,6 +86,7 @@ async def update_user(id: str, user: UserModel):
         return success_response(user_helper(updated), msg="Usuario actualizado")
     except Exception as e:
         return error_response(f"Error al actualizar usuario: {str(e)}")
+
 
 @router.delete("/{id}")
 async def delete_user(id: str, current_user: dict = Depends(get_current_user)):

@@ -5,7 +5,7 @@ from datetime import datetime
 from bson import ObjectId
 
 
-class IncidentDetailsModel(BaseModel):
+class EmployeeSignatureModel(BaseModel):
     
     # ✅ INCIDENT DETAILS
     

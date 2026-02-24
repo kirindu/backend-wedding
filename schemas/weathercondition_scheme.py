@@ -1,17 +1,16 @@
-def supervisor_note_helper(supervisornote) -> dict:
+def weather_condition_helper(weathercondition) -> dict:
     return {
-        "id": str(supervisornote["_id"]),
-        "weatherName": supervisornote["weatherName"],
-        
+        "id": str(weathercondition["_id"]),
+
+        # ✅ Corregido: usando .get() para evitar KeyError
+        "weatherName": weathercondition.get("weatherName"),
 
         # SOFT DELETE FIELD
-        "active": supervisornote.get("active", True),  # ✅ Campo de borrado lógico
-        
+        "active": weathercondition.get("active", True),
+
         # AUDIT FIELDS
-        
-        "createdBy" : str(supervisornote["createdBy"]) if supervisornote.get("createdBy") else None,
-        "updatedBy" : str(supervisornote["updatedBy"]) if supervisornote.get("updatedBy") else None,
-        "createdAt": supervisornote["createdAt"].isoformat() if supervisornote.get("createdAt") else None,
-        "updatedAt": supervisornote["updatedAt"].isoformat() if supervisornote.get("updatedAt") else None,
-        
+        "createdBy": str(weathercondition["createdBy"]) if weathercondition.get("createdBy") else None,
+        "updatedBy": str(weathercondition["updatedBy"]) if weathercondition.get("updatedBy") else None,
+        "createdAt": weathercondition["createdAt"].isoformat() if weathercondition.get("createdAt") else None,
+        "updatedAt": weathercondition["updatedAt"].isoformat() if weathercondition.get("updatedAt") else None,
     }

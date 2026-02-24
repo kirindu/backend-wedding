@@ -1,161 +1,164 @@
+# Librerias
 from fastapi import APIRouter, status
-from models.duringtheincident_model import DowntimeModel
-from config.database import downtimes_collection, trucks_collection
-from schemas.duringtheincident_scheme import during_the_incident_helper
 from utils.response_helper import success_response, error_response
 from datetime import datetime
 from zoneinfo import ZoneInfo
-
 from bson import ObjectId
 
+# Modelos
+from models.duringtheincident_model import DuringTheIncidentModel
+
+# Configuración de la base de datos y colecciones
+from config.database import (
+    duringTheIncidents_collection,
+    directions_collection,
+    weatherConditions_collection,   # ✅ Corregido: nombre correcto del database.py
+    roadConditions_collection        # ✅ Corregido: nombre correcto del database.py
+)
+
+# Esquemas
+from schemas.duringtheincident_scheme import during_the_incident_helper
+
+# Rutas
 router = APIRouter()
 
 
+async def resolve_lookup_fields(data: dict):
+    """
+    ✅ Helper para convertir IDs a ObjectId y resolver los nombres denormalizados.
+    Separado para no repetir lógica entre POST y PUT.
+    """
+    # Convertir directionYouWereTraveling_id
+    if data.get("directionYouWereTraveling_id"):
+        data["directionYouWereTraveling_id"] = ObjectId(data["directionYouWereTraveling_id"])
+        direction_doc = await directions_collection.find_one({"_id": data["directionYouWereTraveling_id"]})
+        data["directionName"] = direction_doc.get("directionName") if direction_doc else None
+
+    # Convertir weatherConditions_id
+    if data.get("weatherConditions_id"):
+        data["weatherConditions_id"] = ObjectId(data["weatherConditions_id"])
+        weather_doc = await weatherConditions_collection.find_one({"_id": data["weatherConditions_id"]})
+        data["weatherName"] = weather_doc.get("weatherName") if weather_doc else None
+
+    # Convertir roadConditions_id
+    if data.get("roadConditions_id"):
+        data["roadConditions_id"] = ObjectId(data["roadConditions_id"])
+        road_doc = await roadConditions_collection.find_one({"_id": data["roadConditions_id"]})
+        data["roadConditionName"] = road_doc.get("roadConditionName") if road_doc else None
+
+    return data
+
+
 @router.post("/")
-async def create_downtime(downtime: DowntimeModel):
-    """
-    Create a new downtime record
-    Nueva estructura: Ya NO actualiza el array en coversheet,
-    solo guarda la referencia coversheet_ref_id en el downtime
-    """
+async def create_during_the_incident(during_the_incident: DuringTheIncidentModel):
     try:
-        data = downtime.model_dump()
-        
-        # 🆕 Convertir coversheet_ref_id a ObjectId
-        coversheet_ref_id = data.get("coversheet_ref_id")
-        if coversheet_ref_id:
-            data["coversheet_ref_id"] = ObjectId(coversheet_ref_id)
-        
-        # Convertir truck_id a ObjectId si existe
-        truck_id = data.get("truck_id")
-        if truck_id:
-            data["truck_id"] = ObjectId(truck_id)
-            
-            # Obtener truckNumber para desnormalización
-            truck_doc = await trucks_collection.find_one({"_id": data["truck_id"]})
-            if truck_doc and truck_doc.get("truckNumber"):
-                data["truckNumber"] = truck_doc["truckNumber"]
-        
-        # Asegurar que active está en True
+        data = during_the_incident.model_dump()
+
+        # Convertir generalInformation_ref_id a ObjectId
+        if data.get("generalInformation_ref_id"):
+            data["generalInformation_ref_id"] = ObjectId(data["generalInformation_ref_id"])
+
+        # ✅ Resolver lookups de forma limpia
+        data = await resolve_lookup_fields(data)
+
+        # ✅ Audit fields
+        data["createdAt"] = datetime.now(ZoneInfo("America/Denver"))
+        data["updatedAt"] = None
         data["active"] = data.get("active", True)
 
-        # Insertar el nuevo downtime
-        new = await downtimes_collection.insert_one(data)
-        created = await downtimes_collection.find_one({"_id": new.inserted_id})
-
-        # ❌ Ya NO llamamos a add_entity_to_coversheet
-        # El coversheet ya no mantiene arrays de IDs
+        new = await duringTheIncidents_collection.insert_one(data)
+        created = await duringTheIncidents_collection.find_one({"_id": new.inserted_id})
 
         return success_response(
-            downtime_helper(created), 
-            msg="Downtime creada exitosamente"
+            during_the_incident_helper(created),
+            msg="During the incident creada exitosamente"
         )
     except Exception as e:
         return error_response(
-            f"Error al crear downtime: {str(e)}", 
+            f"Error al crear during the incident: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
 @router.get("/")
-async def get_all_downtimes():
-    """Get all active downtimes"""
+async def get_all_during_the_incidents():
     try:
-        # 🆕 Filtrar solo los activos
-        downtimes = [
-            downtime_helper(d) 
-            async for d in downtimes_collection.find({"active": True})
+        during_the_incidents = [
+            during_the_incident_helper(d)
+            async for d in duringTheIncidents_collection.find({"active": True})
         ]
-        return success_response(downtimes, msg="Lista de downtimes obtenida")
+        return success_response(during_the_incidents, msg="Lista de during the incidents obtenida")
     except Exception as e:
         return error_response(
-            f"Error al obtener downtimes: {str(e)}", 
+            f"Error al obtener during the incidents: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
 @router.get("/{id}")
-async def get_downtime(id: str):
-    """Get a single active downtime by ID"""
+async def get_during_the_incident(id: str):
     try:
-        downtime = await downtimes_collection.find_one({
+        during_the_incident = await duringTheIncidents_collection.find_one({
             "_id": ObjectId(id),
-            "active": True  # 🆕 Solo buscar activos
+            "active": True
         })
-        if downtime:
-            return success_response(downtime_helper(downtime), msg="Downtime encontrada")
+        if during_the_incident:
+            return success_response(during_the_incident_helper(during_the_incident), msg="During the incident encontrada")
         return error_response(
-            "Downtime no encontrada", 
+            "During the incident no encontrada",
             status_code=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
-        return error_response(f"Error al obtener downtime: {str(e)}")
+        return error_response(f"Error al obtener during the incident: {str(e)}")
 
 
 @router.put("/{id}")
-async def update_downtime(id: str, downtime: DowntimeModel):
-    """Update an existing active downtime"""
+async def update_during_the_incident(id: str, during_the_incident: DuringTheIncidentModel):
     try:
-        data = downtime.model_dump(exclude_unset=True)
-        
-        # 🆕 Prevenir actualización de campos sensibles
-        if "coversheet_ref_id" in data:
-            del data["coversheet_ref_id"]  # No permitir cambiar el padre
-        if "active" in data:
-            del data["active"]  # No permitir cambiar active a través de este endpoint
-        
-        # 🆕 Actualizar timestamp
-        data["updatedAt"] = datetime.now(ZoneInfo("America/Denver"))
-        
-        # Convertir truck_id a ObjectId si está siendo actualizado
-        truck_id = data.get("truck_id")
-        if truck_id:
-            data["truck_id"] = ObjectId(truck_id)
-            
-            # Actualizar truckNumber desnormalizado
-            truck_doc = await trucks_collection.find_one({"_id": data["truck_id"]})
-            if truck_doc and truck_doc.get("truckNumber"):
-                data["truckNumber"] = truck_doc["truckNumber"]
+        data = during_the_incident.model_dump(exclude_unset=True)
 
-        # 🆕 Solo actualizar si el downtime está activo
-        res = await downtimes_collection.update_one(
+        # No permitir cambiar active a través de este endpoint
+        data.pop("active", None)
+
+        # ✅ Resolver lookups de forma limpia
+        data = await resolve_lookup_fields(data)
+
+        # ✅ Audit field
+        data["updatedAt"] = datetime.now(ZoneInfo("America/Denver"))
+
+        res = await duringTheIncidents_collection.update_one(
             {"_id": ObjectId(id), "active": True},
             {"$set": data}
         )
 
         if res.matched_count == 0:
             return error_response(
-                "Downtime no encontrada o no está activa", 
+                "During the incident no encontrada o no está activa",
                 status_code=status.HTTP_404_NOT_FOUND
             )
 
-        updated = await downtimes_collection.find_one({"_id": ObjectId(id)})
-        return success_response(downtime_helper(updated), msg="Downtime actualizada")
+        updated = await duringTheIncidents_collection.find_one({"_id": ObjectId(id)})
+        return success_response(during_the_incident_helper(updated), msg="During the incident actualizada")
     except Exception as e:
-        return error_response(f"Error al actualizar downtime: {str(e)}")
+        return error_response(f"Error al actualizar during the incident: {str(e)}")
 
 
 @router.delete("/{id}")
-async def delete_downtime(id: str):
-    """
-    Soft delete a downtime by setting active=False
-    ❌ Ya NO es un hard delete
-    """
+async def delete_during_the_incident(id: str):
+    """Soft delete - marca como inactivo en lugar de eliminar"""
     try:
-        # Verificar que el downtime existe y está activo
-        downtime = await downtimes_collection.find_one({
+        during_the_incident = await duringTheIncidents_collection.find_one({
             "_id": ObjectId(id),
             "active": True
         })
-        
-        if not downtime:
+
+        if not during_the_incident:
             return error_response(
-                "Downtime no encontrada o ya fue eliminada", 
+                "During the incident no encontrada o ya fue eliminada",
                 status_code=status.HTTP_404_NOT_FOUND
             )
-        
-        # 🆕 Soft delete: marcar como inactivo
-        await downtimes_collection.update_one(
+
+        await duringTheIncidents_collection.update_one(
             {"_id": ObjectId(id)},
             {
                 "$set": {
@@ -164,35 +167,31 @@ async def delete_downtime(id: str):
                 }
             }
         )
-        
-        return success_response(None, msg="Downtime eliminada (soft delete)")
+
+        return success_response(None, msg="During the incident eliminada (soft delete)")
     except Exception as e:
-        return error_response(f"Error al eliminar downtime: {str(e)}")
+        return error_response(f"Error al eliminar during the incident: {str(e)}")
 
 
-@router.get("/by-coversheet/{coversheet_id}")
-async def get_downtimes_by_coversheet(coversheet_id: str):
-    """
-    🆕 Nuevo endpoint: Obtener todos los downtimes de un coversheet específico
-    Útil para queries desde el frontend
-    """
+@router.get("/by-general-informacion/{generalInformation_id}")
+async def get_during_the_incidents_by_general_information(generalInformation_id: str):
     try:
-        coversheet_oid = ObjectId(coversheet_id)
-        
-        downtimes = [
-            downtime_helper(d)
-            async for d in downtimes_collection.find({
-                "coversheet_ref_id": coversheet_oid,
+        generalInformation_oid = ObjectId(generalInformation_id)
+
+        during_the_incidents = [
+            during_the_incident_helper(d)
+            async for d in duringTheIncidents_collection.find({
+                "generalInformation_ref_id": generalInformation_oid,
                 "active": True
             })
         ]
-        
+
         return success_response(
-            downtimes, 
-            msg=f"Downtimes del coversheet {coversheet_id} obtenidos"
+            during_the_incidents,
+            msg=f"During the incidents de la general_information {generalInformation_id} obtenidos"
         )
     except Exception as e:
         return error_response(
-            f"Error al obtener downtimes por coversheet: {str(e)}",
+            f"Error al obtener during the incidents por general information: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

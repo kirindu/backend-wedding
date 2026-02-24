@@ -29,7 +29,7 @@ async def employee_login(employee: EmployeeModel):
             "token_type": "bearer",
             "user": {
                 "id": str(db_employee["_id"]),
-                "name": db_employee["name"],
+                "name": db_employee["employeeName"],
                 "email": db_employee["email"],
                 "rol": db_employee["rol"]
             }
@@ -57,7 +57,7 @@ async def create_employee(employee: EmployeeModel):
 @router.get("/")
 async def get_all_employees():
     try:
-        employees = [employee_helper(employee) async for employee in employees_collection.find().sort("name", 1)]
+        employees = [employee_helper(employee) async for employee in employees_collection.find().sort("employeeName", 1)]
         return success_response(employees, msg="Lista de employees obtenida")
     except Exception as e:
         return error_response(f"Error al obtener los employees: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
