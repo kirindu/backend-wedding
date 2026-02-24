@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 class EmployeeModel(BaseModel):
     employeeName: Optional[str]= None
     email: EmailStr
-    rol: str = Field(default="Driver")
+    rol: str = Field(default="Employee")
     password: str
     
     # 🆕 Campo para soft deletes

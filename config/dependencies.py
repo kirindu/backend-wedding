@@ -1,17 +1,14 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from config.auth import decode_token
-from config.database import users_collection, drivers_collection
+from config.database import users_collection, employees_collection
 from bson import ObjectId
 
 # Cambiar de OAuth2PasswordBearer a HTTPBearer para soportar Authorization: Bearer
 security = HTTPBearer()
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """
-    Dependency para obtener el usuario actual desde el token JWT.
-    Busca tanto en users (admins) como en drivers.
-    """
+
     token = credentials.credentials
     
     try:
@@ -24,7 +21,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
                 detail="Token inválido o expirado"
             )
         
-        # El 'sub' puede ser email (users) o email (drivers)
+
         identifier = payload.get("sub")
         
         if not identifier:
@@ -45,16 +42,16 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
                 "type": "user"
             }
         
-        # ✅ Si no se encuentra en users, buscar en drivers (por email)
-        driver = await drivers_collection.find_one({"email": identifier})
+        # ✅ Si no se encuentra en users, buscar en employee (por email)
+        employee = await employees_collection.find_one({"email": identifier})
         
-        if driver:
+        if employee:
             return {
-                "id": str(driver["_id"]),
-                "name": driver.get("name"),
-                "email": driver.get("email"),
-                "rol": driver.get("rol", "Driver"),
-                "type": "driver"
+                "id": str(["_id"]),
+                "name": employee.get("employeeName"),
+                "email": employee.get("email"),
+                "rol": employee.get("rol", "Employee"),
+                "type": "Employee"
             }
         
         # Si no se encuentra en ninguna colección
