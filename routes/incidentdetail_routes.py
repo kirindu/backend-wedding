@@ -5,8 +5,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from bson import ObjectId
 from typing import List, Optional
-import os
-import uuid
 
 # Configuración de la base de datos y colecciones
 from config.database import incidentDetails_collection
@@ -14,8 +12,14 @@ from config.database import incidentDetails_collection
 # Esquemas
 from schemas.incidentdetail_scheme import incident_detail_helper
 
+# ✅ OneDrive helper en lugar de disco local
+from config.onedrive import smart_upload
+
 # Rutas
 router = APIRouter()
+
+# Subcarpeta dentro de OneDrive para este módulo
+ONEDRIVE_SUBFOLDER = "incidentdetails"
 
 
 @router.post("/")
@@ -30,13 +34,10 @@ async def create_incident_detail(
     incidentInThePastYear: Optional[bool] = Form(None),
     listDatesOfIncidents: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=None),
-    image_path: Optional[str] = Form(None),
     generalInformation_ref_id: str = Form(...),
 ):
     try:
-        image_paths = []
-        upload_dir = "uploads"
-        os.makedirs(upload_dir, exist_ok=True)
+        image_urls = []
 
         if images:
             for image in images:
@@ -50,17 +51,16 @@ async def create_incident_detail(
                     )
 
                 contents = await image.read()
-                if len(contents) > 5 * 1024 * 1024:
+
+                if len(contents) > 10 * 1024 * 1024:
                     return error_response(
-                        f"The file '{image.filename}' exceeds the maximum size of 5MB.",
+                        f"The file '{image.filename}' exceeds the maximum size of 10MB.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
-                filename = f"{uuid.uuid4()}_{image.filename}"
-                file_path = os.path.join(upload_dir, filename)
-                with open(file_path, "wb") as buffer:
-                    buffer.write(contents)
-                image_paths.append(file_path)
+                # ✅ Subir a OneDrive — retorna la webUrl del archivo
+                file_url = await smart_upload(contents, image.filename, ONEDRIVE_SUBFOLDER)
+                image_urls.append(file_url)
 
         data = {
             "incidentDescription": incidentDescription,
@@ -72,8 +72,8 @@ async def create_incident_detail(
             "whatDamageWasDone": whatDamageWasDone,
             "incidentInThePastYear": incidentInThePastYear,
             "listDatesOfIncidents": listDatesOfIncidents,
-            "images": image_paths if image_paths else [],
-            "image_path": image_path,
+            "images": image_urls,
+            "image_path": image_urls[0] if image_urls else None,  # primera imagen como preview
             "generalInformation_ref_id": ObjectId(generalInformation_ref_id),
             "createdAt": datetime.now(ZoneInfo("America/Denver")),
             "updatedAt": None,
@@ -142,7 +142,6 @@ async def update_incident_detail(
     incidentInThePastYear: Optional[bool] = Form(None),
     listDatesOfIncidents: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=None),
-    image_path: Optional[str] = Form(None),
 ):
     try:
         existing = await incidentDetails_collection.find_one({
@@ -152,10 +151,8 @@ async def update_incident_detail(
         if not existing:
             return error_response("Incident detail no encontrado", status_code=status.HTTP_404_NOT_FOUND)
 
-        # Mantener imágenes existentes y agregar las nuevas
-        image_paths = existing.get("images", [])
-        upload_dir = "uploads"
-        os.makedirs(upload_dir, exist_ok=True)
+        # Mantener URLs existentes y agregar las nuevas
+        image_urls = existing.get("images", [])
 
         if images:
             for image in images:
@@ -169,17 +166,16 @@ async def update_incident_detail(
                     )
 
                 contents = await image.read()
-                if len(contents) > 5 * 1024 * 1024:
+
+                if len(contents) > 10 * 1024 * 1024:
                     return error_response(
-                        f"The image '{image.filename}' exceeds the maximum allowed size of 5MB.",
+                        f"The image '{image.filename}' exceeds the maximum allowed size of 10MB.",
                         status_code=status.HTTP_400_BAD_REQUEST
                     )
 
-                filename = f"{uuid.uuid4()}_{image.filename}"
-                file_path = os.path.join(upload_dir, filename)
-                with open(file_path, "wb") as buffer:
-                    buffer.write(contents)
-                image_paths.append(file_path)
+                # ✅ Subir a OneDrive
+                file_url = await smart_upload(contents, image.filename, ONEDRIVE_SUBFOLDER)
+                image_urls.append(file_url)
 
         data = {
             "incidentDescription": incidentDescription,
@@ -191,8 +187,8 @@ async def update_incident_detail(
             "whatDamageWasDone": whatDamageWasDone,
             "incidentInThePastYear": incidentInThePastYear,
             "listDatesOfIncidents": listDatesOfIncidents,
-            "images": image_paths,
-            "image_path": image_path,
+            "images": image_urls,
+            "image_path": image_urls[0] if image_urls else existing.get("image_path"),
             "updatedAt": datetime.now(ZoneInfo("America/Denver")),
         }
 

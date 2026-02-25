@@ -1,7 +1,5 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-import os
 from contextlib import asynccontextmanager
 
 from config.database import ping_database
@@ -64,12 +62,6 @@ app.add_middleware(
 async def add_process_time_header(request: Request, call_next):
     response = await call_next(request)
     return response
-
-# ── Static files ───────────────────────────────────────────────────────────
-if not os.path.exists("uploads"):
-    os.makedirs("uploads")
-
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # ── Routes ─────────────────────────────────────────────────────────────────
 
