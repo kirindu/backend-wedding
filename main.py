@@ -88,7 +88,6 @@ app.include_router(incidentdetail_router,     prefix="/api/incidentdetails",    
 app.include_router(employeesignature_router,  prefix="/api/employeesignatures",  tags=["Employee Signatures"])
 app.include_router(supervisornote_router,     prefix="/api/supervisornotes",     tags=["Supervisor Notes"])
 
-
 @app.get("/")
 async def root():
     return {"message": "Welcome to ACE Safety API!"}
