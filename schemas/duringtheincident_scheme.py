@@ -3,8 +3,13 @@ def during_the_incident_helper(duringIncident) -> dict:
         "id": str(duringIncident["_id"]),
         "usingElectronicDevice": duringIncident.get("usingElectronicDevice"),
         "taskPerfomed": duringIncident.get("taskPerfomed"),
-        "whereWereYouComingFrom": duringIncident.get("whereWereYouComingFrom"),
-        "whereWereYouGoingTo": duringIncident.get("whereWereYouGoingTo"),
+              
+        "wasSafetyDeptNotified": duringIncident.get("wasSafetyDeptNotified"),
+        "didYouTakePictures": duringIncident.get("didYouTakePictures"),
+        "safetyPersonNotified_id": str(duringIncident["safetyPersonNotified_id"]) if duringIncident.get("safetyPersonNotified_id") else None,
+        "whoDidYouSendThePictureToName_id": str(duringIncident["whoDidYouSendThePictureToName_id"]) if duringIncident.get("whoDidYouSendThePictureToName_id") else None,  
+        
+        
         "howFastWereYouGoing": duringIncident.get("howFastWereYouGoing"),
 
         # IDs de referencia (como string para el frontend)
@@ -13,6 +18,9 @@ def during_the_incident_helper(duringIncident) -> dict:
         "roadConditions_id": str(duringIncident["roadConditions_id"]) if duringIncident.get("roadConditions_id") else None,
 
         # ✅ Nombres denormalizados - leídos del campo guardado, no del ObjectId
+        "safetyPersonNotifiedName": duringIncident.get("safetyPersonNotifiedName"),
+        "whoDidYouSendThePictureToName": duringIncident.get("whoDidYouSendThePictureToName"),   
+      
         "directionName": duringIncident.get("directionName"),
         "weatherName": duringIncident.get("weatherName"),
         "roadConditionName": duringIncident.get("roadConditionName"),

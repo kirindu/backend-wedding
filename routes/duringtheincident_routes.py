@@ -12,8 +12,10 @@ from models.duringtheincident_model import DuringTheIncidentModel
 from config.database import (
     duringTheIncidents_collection,
     directions_collection,
-    weatherConditions_collection,   # ✅ Corregido: nombre correcto del database.py
-    roadConditions_collection        # ✅ Corregido: nombre correcto del database.py
+    weatherConditions_collection,   
+    roadConditions_collection,
+    safetyPersons_collection,
+    whoDidYouSendThePicturesTo_collection       
 )
 
 # Esquemas
@@ -28,6 +30,19 @@ async def resolve_lookup_fields(data: dict):
     ✅ Helper para convertir IDs a ObjectId y resolver los nombres denormalizados.
     Separado para no repetir lógica entre POST y PUT.
     """
+    # Convertir safetyPersonNotified_id
+    if data.get("safetyPersonNotified_id"):
+        data["safetyPersonNotified_id"] = ObjectId(data["safetyPersonNotified_id"])
+        safety_person_doc = await safetyPersons_collection.find_one({"_id": data["safetyPersonNotified_id"]})
+        data["safetyPersonNotifiedName"] = safety_person_doc.get("safetyPersonNotifiedName") if safety_person_doc else None     
+    
+    # Convertir whoDidYouSendThePictureTo_id
+    if data.get("whoDidYouSendThePictureTo_id"):
+        data["whoDidYouSendThePictureTo_id"] = ObjectId(data["whoDidYouSendThePictureTo_id"])
+        who_doc = await whoDidYouSendThePicturesTo_collection.find_one({"_id": data["whoDidYouSendThePictureTo_id"]})
+        data["whoDidYouSendThePictureToName"] = who_doc.get("whoDidYouSendThePictureToName") if who_doc else None       
+                
+    
     # Convertir directionYouWereTraveling_id
     if data.get("directionYouWereTraveling_id"):
         data["directionYouWereTraveling_id"] = ObjectId(data["directionYouWereTraveling_id"])

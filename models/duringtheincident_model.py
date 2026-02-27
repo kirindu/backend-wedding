@@ -12,9 +12,21 @@ class DuringTheIncidentModel(BaseModel):
     
     usingElectronicDevice: Optional[bool] = None
     taskPerfomed: Optional[str] = None
-    whereWereYouComingFrom: Optional[str] = None
-    whereWereYouGoingTo: Optional[str] = None
+    
+    
+    wasSafetyDeptNotified: Optional[bool] = None
+    didYouTakePictures: Optional[bool] = None
+    
+    
+    
+    
+
+    
+    
     howFastWereYouGoing: Optional[str] = None
+    
+    safetyPersonNotified_id: Optional[str] = None
+    whoDidYouSendPicturesTo_id: Optional[str] = None
     
     directionYouWereTraveling_id: Optional[str] = None
     weatherConditions_id: Optional[str] = None
