@@ -13,6 +13,8 @@ from routes.supervisor_routes import router as supervisor_router
 from routes.truck_routes import router as truck_router
 from routes.typeincident_routes import router as typeincident_router
 from routes.weathercondition_routes import router as weathercondition_router
+from routes.safetypersonnotified_routes import router as safetypersonnotified_router
+from routes.whodidyousendthepictureto_routes import router as whodidyousendthepictureto_router
 
 # ── Auth / Users ───────────────────────────────────────────────────────────
 from routes.employee_routes import router as employee_router
@@ -66,27 +68,30 @@ async def add_process_time_header(request: Request, call_next):
 # ── Routes ─────────────────────────────────────────────────────────────────
 
 # Utils
-app.include_router(email_router,              prefix="/api/utils",               tags=["Email"])
+app.include_router(email_router,                    prefix="/api/utils",               tags=["Email"])
 
 # Catalog / Dropdowns
-app.include_router(dept_router,               prefix="/api/depts",               tags=["Depts"])
-app.include_router(direction_router,          prefix="/api/directions",          tags=["Directions"])
-app.include_router(roadcondition_router,      prefix="/api/roadconditions",      tags=["Road Conditions"])
-app.include_router(supervisor_router,         prefix="/api/supervisors",         tags=["Supervisors"])
-app.include_router(truck_router,              prefix="/api/trucks",              tags=["Trucks"])
-app.include_router(typeincident_router,       prefix="/api/typeincidents",       tags=["Type of Incidents"])
-app.include_router(weathercondition_router,   prefix="/api/weatherconditions",   tags=["Weather Conditions"])
+app.include_router(dept_router,                     prefix="/api/depts",               tags=["Depts"])
+app.include_router(direction_router,                prefix="/api/directions",          tags=["Directions"])
+app.include_router(roadcondition_router,            prefix="/api/roadconditions",      tags=["Road Conditions"])
+app.include_router(supervisor_router,               prefix="/api/supervisors",         tags=["Supervisors"])
+app.include_router(truck_router,                    prefix="/api/trucks",              tags=["Trucks"])
+app.include_router(typeincident_router,             prefix="/api/typeincidents",       tags=["Type of Incidents"])
+app.include_router(weathercondition_router,         prefix="/api/weatherconditions",   tags=["Weather Conditions"])
+
+app.include_router(safetypersonnotified_router,     prefix="/api/safetypersonsnotified", tags=["Safety Persons Notified"])
+app.include_router(whodidyousendthepictureto_router,prefix="/api/whodidyousendthepictureto", tags=["Who Did You Send The Picture To"])
 
 # Auth / Users
-app.include_router(employee_router,           prefix="/api/employees",           tags=["Employees"])
-app.include_router(user_router,               prefix="/api/users",               tags=["Users"])
+app.include_router(employee_router,                 prefix="/api/employees",           tags=["Employees"])
+app.include_router(user_router,                     prefix="/api/users",               tags=["Users"])
 
 # Core / Form sections
-app.include_router(generalinformation_router, prefix="/api/generalinformations", tags=["General Information"])
-app.include_router(duringtheincident_router,  prefix="/api/duringtheincidents",  tags=["During The Incident"])
-app.include_router(incidentdetail_router,     prefix="/api/incidentdetails",     tags=["Incident Details"])
-app.include_router(employeesignature_router,  prefix="/api/employeesignatures",  tags=["Employee Signatures"])
-app.include_router(supervisornote_router,     prefix="/api/supervisornotes",     tags=["Supervisor Notes"])
+app.include_router(generalinformation_router,       prefix="/api/generalinformations", tags=["General Information"])
+app.include_router(duringtheincident_router,        prefix="/api/duringtheincidents",  tags=["During The Incident"])
+app.include_router(incidentdetail_router,           prefix="/api/incidentdetails",     tags=["Incident Details"])
+app.include_router(employeesignature_router,        prefix="/api/employeesignatures",  tags=["Employee Signatures"])
+app.include_router(supervisornote_router,           prefix="/api/supervisornotes",     tags=["Supervisor Notes"])
 
 @app.get("/")
 async def root():
