@@ -15,5 +15,4 @@ def employee_helper(employee) -> dict:
         "updatedBy" : str(employee["updatedBy"]) if employee.get("updatedBy") else None,
         "createdAt": employee["createdAt"].isoformat() if employee.get("createdAt") else None,
         "updatedAt": employee["updatedAt"].isoformat() if employee.get("updatedAt") else None,
-
     }
