@@ -23,7 +23,7 @@ async def ping_database():
 
 depts_collection = database.depts
 directions_collection = database.directions
-safetyPersons_collection = database.safetyPersons
+safetyPersonsNotified_collection = database.safetyPersons
 whoDidYouSendThePicturesTo_collection = database.whoDidYouSendThePicturesTo
 
 

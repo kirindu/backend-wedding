@@ -14,7 +14,7 @@ from config.database import (
     directions_collection,
     weatherConditions_collection,   
     roadConditions_collection,
-    safetyPersons_collection,
+    safetyPersonsNotified_collection,
     whoDidYouSendThePicturesTo_collection       
 )
 
@@ -33,7 +33,7 @@ async def resolve_lookup_fields(data: dict):
     # Convertir safetyPersonNotified_id
     if data.get("safetyPersonNotified_id"):
         data["safetyPersonNotified_id"] = ObjectId(data["safetyPersonNotified_id"])
-        safety_person_doc = await safetyPersons_collection.find_one({"_id": data["safetyPersonNotified_id"]})
+        safety_person_doc = await safetyPersonsNotified_collection.find_one({"_id": data["safetyPersonNotified_id"]})
         data["safetyPersonNotifiedName"] = safety_person_doc.get("safetyPersonNotifiedName") if safety_person_doc else None     
     
     # Convertir whoDidYouSendThePictureTo_id
