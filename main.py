@@ -27,8 +27,14 @@ from routes.incidentdetail_routes import router as incidentdetail_router
 from routes.employeesignature_routes import router as employeesignature_router
 from routes.supervisornote_routes import router as supervisornote_router
 
+# ── Proxy Media ──────────────────────────────────────────────────────────────────
+from routes.media_routes import router as media_router
+
+
 # ── Utils ──────────────────────────────────────────────────────────────────
 from routes.email_routes import router as email_router
+
+
 
 
 @asynccontextmanager
@@ -92,6 +98,9 @@ app.include_router(duringtheincident_router,        prefix="/api/duringtheincide
 app.include_router(incidentdetail_router,           prefix="/api/incidentdetails",     tags=["Incident Details"])
 app.include_router(employeesignature_router,        prefix="/api/employeesignatures",  tags=["Employee Signatures"])
 app.include_router(supervisornote_router,           prefix="/api/supervisornotes",     tags=["Supervisor Notes"])
+
+# Proxy Media
+app.include_router(media_router,                    prefix="/api/media",               tags=["Media"])
 
 @app.get("/")
 async def root():
