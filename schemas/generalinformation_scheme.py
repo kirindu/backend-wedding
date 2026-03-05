@@ -23,7 +23,7 @@ def general_information_helper(generalinformation) -> dict:
         "time": generalinformation.get("time"),
         "timeWorkedYears": generalinformation.get("timeWorkedYears"),
         "timeWorkedMonths": generalinformation.get("timeWorkedMonths"),
-        "timeDayStarted": generalinformation["timeDayStarted"].isoformat() if generalinformation.get("timeDayStarted") else None,
+        "timeDayStarted": generalinformation.get("timeDayStarted"),
 
         # SOFT DELETE FIELD
         "active": generalinformation.get("active", True),

@@ -24,7 +24,7 @@ class GeneralInformationModel(BaseModel):
     time: Optional[str] = None
     timeWorkedYears: Optional[int] = None
     timeWorkedMonths: Optional[int] = None
-    timeDayStarted: Optional[datetime] = None
+    timeDayStarted: Optional[str] = None
     
            
     # 🆕 Campo para soft deletes
