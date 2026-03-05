@@ -58,7 +58,7 @@ def get_access_token() -> str:
 async def upload_file_to_onedrive(file_bytes: bytes, original_filename: str, subfolder: str = "") -> str:
     """
     Sube archivos de hasta 4MB a OneDrive con un PUT directo.
-    Retorna la webUrl del archivo subido.
+    Retorna la URL de Graph API para descargar el archivo (compatible con el proxy).
     """
     token = get_access_token()
 
@@ -66,7 +66,8 @@ async def upload_file_to_onedrive(file_bytes: bytes, original_filename: str, sub
     folder_path = f"{UPLOAD_FOLDER}/{subfolder}".strip("/") if subfolder else UPLOAD_FOLDER
     upload_path = f"{folder_path}/{unique_filename}"
 
-    upload_url = f"{GRAPH_BASE}/users/{USER_ID}/drive/root:/{upload_path}:/content"
+    # ✅ Esta es también la URL de descarga via Graph API (con Bearer token)
+    graph_content_url = f"{GRAPH_BASE}/users/{USER_ID}/drive/root:/{upload_path}:/content"
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -74,21 +75,26 @@ async def upload_file_to_onedrive(file_bytes: bytes, original_filename: str, sub
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.put(upload_url, content=file_bytes, headers=headers)
+        response = await client.put(graph_content_url, content=file_bytes, headers=headers)
         response.raise_for_status()
-        return response.json().get("webUrl", "")
+
+    # ✅ Retornamos la Graph API URL en lugar de webUrl (SharePoint)
+    return graph_content_url
 
 
 async def upload_large_file_to_onedrive(file_bytes: bytes, original_filename: str, subfolder: str = "") -> str:
     """
     Sube archivos mayores a 4MB usando Upload Session (chunks de 5MB).
-    Retorna la webUrl del archivo subido.
+    Retorna la URL de Graph API para descargar el archivo (compatible con el proxy).
     """
     token = get_access_token()
 
     unique_filename = f"{uuid.uuid4()}_{original_filename}"
     folder_path = f"{UPLOAD_FOLDER}/{subfolder}".strip("/") if subfolder else UPLOAD_FOLDER
     upload_path = f"{folder_path}/{unique_filename}"
+
+    # ✅ Guardamos la Graph API URL antes de subir para retornarla al final
+    graph_content_url = f"{GRAPH_BASE}/users/{USER_ID}/drive/root:/{upload_path}:/content"
 
     # 1. Crear upload session
     session_url = f"{GRAPH_BASE}/users/{USER_ID}/drive/root:/{upload_path}:/createUploadSession"
@@ -128,7 +134,8 @@ async def upload_large_file_to_onedrive(file_bytes: bytes, original_filename: st
 
             offset += chunk_size
 
-    return item.get("webUrl", "")
+    # ✅ Retornamos la Graph API URL en lugar de webUrl (SharePoint)
+    return graph_content_url
 
 
 async def smart_upload(file_bytes: bytes, original_filename: str, subfolder: str = "") -> str:
