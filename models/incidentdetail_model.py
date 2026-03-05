@@ -12,10 +12,13 @@ class IncidentDetailModel(BaseModel):
     incidentDescription: Optional[str] = None
     actionEventCondition: Optional[str] = None
     wereAnyVehiclesTowed: Optional[bool] = None
+    
     wasAnyOneHurt: Optional[bool] = None
     describeAnyInjuries: Optional[str] = None
+    
     damageToAceTruck: Optional[str] = None
     whatDamageWasDone: Optional[str] = None
+    
     incidentInThePastYear: Optional[bool] = None
     listDatesOfIncidents: Optional[str] = None
     
