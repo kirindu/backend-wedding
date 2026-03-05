@@ -37,9 +37,9 @@ async def resolve_lookup_fields(data: dict):
         data["safetyPersonNotifiedName"] = safety_person_doc.get("safetyPersonNotifiedName") if safety_person_doc else None     
     
     # Convertir whoDidYouSendThePictureTo_id
-    if data.get("whoDidYouSendThePictureTo_id"):
-        data["whoDidYouSendThePictureTo_id"] = ObjectId(data["whoDidYouSendThePictureTo_id"])
-        who_doc = await whoDidYouSendThePicturesTo_collection.find_one({"_id": data["whoDidYouSendThePictureTo_id"]})
+    if data.get("whoDidYouSendPicturesTo_id"):
+        data["whoDidYouSendPicturesTo_id"] = ObjectId(data["whoDidYouSendPicturesTo_id"])
+        who_doc = await whoDidYouSendThePicturesTo_collection.find_one({"_id": data["whoDidYouSendPicturesTo_id"]})
         data["whoDidYouSendThePictureToName"] = who_doc.get("whoDidYouSendThePictureToName") if who_doc else None       
                 
     

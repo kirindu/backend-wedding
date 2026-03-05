@@ -7,7 +7,7 @@ def during_the_incident_helper(duringIncident) -> dict:
         "wasSafetyDeptNotified": duringIncident.get("wasSafetyDeptNotified"),
         "didYouTakePictures": duringIncident.get("didYouTakePictures"),
         "safetyPersonNotified_id": str(duringIncident["safetyPersonNotified_id"]) if duringIncident.get("safetyPersonNotified_id") else None,
-        "whoDidYouSendThePictureToName_id": str(duringIncident["whoDidYouSendThePictureToName_id"]) if duringIncident.get("whoDidYouSendThePictureToName_id") else None,  
+        "whoDidYouSendPicturesTo_id": str(duringIncident["whoDidYouSendPicturesTo_id"]) if duringIncident.get("whoDidYouSendPicturesTo_id") else None,  
         
         
         "howFastWereYouGoing": duringIncident.get("howFastWereYouGoing"),

@@ -18,12 +18,7 @@ class DuringTheIncidentModel(BaseModel):
     didYouTakePictures: Optional[bool] = None
     
     
-    
-    
-
-    
-    
-    howFastWereYouGoing: Optional[str] = None
+    howFastWereYouGoing: Optional[int] = None
     
     safetyPersonNotified_id: Optional[str] = None
     whoDidYouSendPicturesTo_id: Optional[str] = None
