@@ -1,7 +1,8 @@
 def supervisor_note_helper(supervisornote) -> dict:
     return {
         "id": str(supervisornote["_id"]),
-        "supervisorNote": supervisornote.get("note"),
+        "supervisorNote": supervisornote.get("supervisorNote"),
+        "supervisorSignature": supervisornote.get("supervisorSignature"),
 
         # Referencia al padre
         "generalInformation_ref_id": str(supervisornote["generalInformation_ref_id"]) if supervisornote.get("generalInformation_ref_id") else None,

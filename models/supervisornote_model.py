@@ -9,7 +9,8 @@ class SupervisorNoteModel(BaseModel):
 
  # ✅ SUPERVISOR NOTES FIELDS
     
-    note: Optional[str] = None
+    supervisorNote: Optional[str] = None
+    supervisorSignature: Optional[str] = None
    
     # 🆕 referencia al padre
     generalInformation_ref_id: Optional[str] = None
