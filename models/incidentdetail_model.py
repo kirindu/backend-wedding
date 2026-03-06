@@ -23,7 +23,7 @@ class IncidentDetailModel(BaseModel):
     listDatesOfIncidents: Optional[str] = None
     
     images: Optional[list] = []
-    image_path: Optional[str] = None
+    # image_path: Optional[str] = None
     
     
     # 🆕 referencia al padre

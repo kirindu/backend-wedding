@@ -16,7 +16,7 @@ def incident_detail_helper(incidentdetail) -> dict:
         "listDatesOfIncidents": incidentdetail.get("listDatesOfIncidents"),
 
         "images": incidentdetail.get("images", []),
-        "image_path": incidentdetail.get("image_path"),
+        # "image_path": incidentdetail.get("image_path"),
 
         # Referencia al padre
         "generalInformation_ref_id": str(incidentdetail["generalInformation_ref_id"]) if incidentdetail.get("generalInformation_ref_id") else None,

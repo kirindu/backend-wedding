@@ -73,7 +73,7 @@ async def create_incident_detail(
             "incidentInThePastYear": incidentInThePastYear,
             "listDatesOfIncidents": listDatesOfIncidents,
             "images": image_urls,
-            "image_path": image_urls[0] if image_urls else None,  # primera imagen como preview
+            # "image_path": image_urls[0] if image_urls else None,  # primera imagen como preview
             "generalInformation_ref_id": ObjectId(generalInformation_ref_id),
             "createdAt": datetime.now(ZoneInfo("America/Denver")),
             "updatedAt": None,
@@ -188,7 +188,7 @@ async def update_incident_detail(
             "incidentInThePastYear": incidentInThePastYear,
             "listDatesOfIncidents": listDatesOfIncidents,
             "images": image_urls,
-            "image_path": image_urls[0] if image_urls else existing.get("image_path"),
+            # "image_path": image_urls[0] if image_urls else existing.get("image_path"),
             "updatedAt": datetime.now(ZoneInfo("America/Denver")),
         }
 
