@@ -36,7 +36,7 @@ async def get_all_type_incidents():
     try:
         type_incidents = [
             type_incident_helper(t)
-            async for t in typeOfIncidents_collection.find({"active": True}).sort("typeIncidentName", 1)
+            async for t in typeOfIncidents_collection.find({"active": True}).sort("typeOfIncidentName", 1)
         ]
         return success_response(type_incidents, msg="Lista de type of incidents obtenida")
     except Exception as e:

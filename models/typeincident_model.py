@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 
 class TypeIncidentModel(BaseModel):
-    typeIncidentName: Optional[str]= None
+    typeOfIncidentName: Optional[str]= None
     
     # 🆕 Campo para soft deletes
     active: bool = Field(default=True)

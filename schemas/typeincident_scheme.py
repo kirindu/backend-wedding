@@ -3,7 +3,7 @@ def type_incident_helper(typeincident) -> dict:
         "id": str(typeincident["_id"]),
 
         # ✅ Corregido: usando .get() para evitar KeyError
-        "typeIncidentName": typeincident.get("typeIncidentName"),
+        "typeOfIncidentName": typeincident.get("typeOfIncidentName"),
 
         # SOFT DELETE FIELD
         "active": typeincident.get("active", True),

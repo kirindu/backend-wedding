@@ -33,5 +33,5 @@ class GeneralInformationModel(BaseModel):
     # AUDIT FIELDS
     createdBy: Optional[str] = None
     updatedBy: Optional[str] = None  
-    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
+    createdAt: Optional[datetime] = None
     updatedAt: Optional[datetime] = None 

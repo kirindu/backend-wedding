@@ -18,7 +18,7 @@ def general_information_helper(generalinformation) -> dict:
         "truckNumber": generalinformation.get("truckNumber"),       
         "deptName": generalinformation.get("deptName"),
         "supervisorName": generalinformation.get("supervisorName"), 
-        "typeOfIncidentName": generalinformation.get("typeIncidentName"),
+        "typeOfIncidentName": generalinformation.get("typeOfIncidentName"),
         "location": generalinformation.get("location"),
         "time": generalinformation.get("time"),
         "timeWorkedYears": generalinformation.get("timeWorkedYears"),
