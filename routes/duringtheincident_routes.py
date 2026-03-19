@@ -1,283 +1,209 @@
 # Librerias
-from fastapi import APIRouter, status, UploadFile, File, Form
+from fastapi import APIRouter, status
 from utils.response_helper import success_response, error_response
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from bson import ObjectId
-from typing import List, Optional
+
+# Modelo
+from models.duringtheincident_model import DuringTheIncidentModel
 
 # Configuración de la base de datos y colecciones
-from config.database import incidentDetails_collection
+from config.database import (
+    duringTheIncidents_collection,
+    safetyPersonsNotified_collection,
+    whoDidYouSendThePicturesTo_collection,
+    directions_collection,
+    weatherConditions_collection,
+    roadConditions_collection,
+)
 
-# Esquemas
-from schemas.incidentdetail_scheme import incident_detail_helper
-
-# ✅ OneDrive helper en lugar de disco local
-from config.onedrive import smart_upload
+# Esquema
+from schemas.duringtheincident_scheme import during_the_incident_helper
 
 # Rutas
 router = APIRouter()
 
-# Subcarpeta dentro de OneDrive para este módulo
-ONEDRIVE_SUBFOLDER = "incidentdetails"
+# Mapeo de lookups: campo_id → (colección, campo_fuente, campo_destino_denormalizado)
+LOOKUP_MAPS = {
+    "safetyPersonNotified_id":       (safetyPersonsNotified_collection,      "safetyPersonNotifiedName",     "safetyPersonNotifiedName"),
+    "whoDidYouSendThePicturesTo_id": (whoDidYouSendThePicturesTo_collection,  "whoDidYouSendThePictureToName", "whoDidYouSendThePictureToName"),
+    "directionYouWereTraveling_id":  (directions_collection,                  "directionName",                "directionName"),
+    "weatherCondition_id":           (weatherConditions_collection,            "weatherName",                  "weatherName"),
+    "roadCondition_id":              (roadConditions_collection,               "roadConditionName",            "roadConditionName"),
+}
 
 
-# ✅ Helper para convertir strings a bool (necesario para form-data)
-def parse_bool(value: Optional[str]) -> Optional[bool]:
-    if value is None:
-        return None
-    return str(value).lower() in ("true", "1", "yes")
+async def resolve_lookup_fields(data: dict) -> dict:
+    """Convierte IDs string a ObjectId y resuelve nombres denormalizados."""
+    for field, (col, source_key, target_key) in LOOKUP_MAPS.items():
+        if data.get(field):
+            data[field] = ObjectId(data[field])
+            doc = await col.find_one({"_id": data[field]})
+            data[target_key] = doc.get(source_key) if doc else None
+        else:
+            data[field] = None
+            data[target_key] = None
+    return data
 
 
 @router.post("/")
-async def create_incident_detail(
-    incidentDescription: Optional[str] = Form(None),
-    actionEventCondition: Optional[str] = Form(None),
-    wereAnyVehiclesTowed: Optional[str] = Form(None),   # ✅ str en lugar de bool
-    wasAnyOneHurt: Optional[str] = Form(None),           # ✅ str en lugar de bool
-    describeAnyInjuries: Optional[str] = Form(None),
-    damageToAceTruck: Optional[str] = Form(None),
-    whatDamageWasDone: Optional[str] = Form(None),
-    incidentInThePastYear: Optional[str] = Form(None),  # ✅ str en lugar de bool
-    listDatesOfIncidents: Optional[str] = Form(None),
-    images: List[UploadFile] = File(default=None),
-    generalInformation_ref_id: str = Form(...),
-):
+async def create_during_the_incident(during_the_incident: DuringTheIncidentModel):
     try:
-        # ✅ Convertir strings a bool
-        wereAnyVehiclesTowed_bool = parse_bool(wereAnyVehiclesTowed)
-        wasAnyOneHurt_bool = parse_bool(wasAnyOneHurt)
-        incidentInThePastYear_bool = parse_bool(incidentInThePastYear)
+        data = during_the_incident.model_dump()
 
-        image_urls = []
+        # Convertir generalInformation_ref_id a ObjectId
+        if data.get("generalInformation_ref_id"):
+            data["generalInformation_ref_id"] = ObjectId(data["generalInformation_ref_id"])
 
-        if images:
-            for image in images:
-                if not image or not image.filename:
-                    continue
+        # Resolver lookups y denormalizar nombres
+        data = await resolve_lookup_fields(data)
 
-                if not image.content_type or not image.content_type.startswith("image/"):
-                    return error_response(
-                        f"The file '{image.filename}' is not an image.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+        # Audit fields
+        tz = ZoneInfo("America/Denver")
+        data["createdAt"] = datetime.now(tz)
+        data["updatedAt"] = None
+        data["active"] = True
 
-                contents = await image.read()
-
-                if len(contents) > 10 * 1024 * 1024:
-                    return error_response(
-                        f"The file '{image.filename}' exceeds the maximum size of 10MB.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
-
-                # ✅ Subir a OneDrive — retorna la webUrl del archivo
-                file_url = await smart_upload(contents, image.filename, ONEDRIVE_SUBFOLDER)
-                image_urls.append(file_url)
-
-        data = {
-            "incidentDescription": incidentDescription,
-            "actionEventCondition": actionEventCondition,
-            "wereAnyVehiclesTowed": wereAnyVehiclesTowed_bool,
-            "wasAnyOneHurt": wasAnyOneHurt_bool,
-            "describeAnyInjuries": describeAnyInjuries,
-            "damageToAceTruck": damageToAceTruck,
-            "whatDamageWasDone": whatDamageWasDone,
-            "incidentInThePastYear": incidentInThePastYear_bool,
-            "listDatesOfIncidents": listDatesOfIncidents,
-            "images": image_urls,
-            # "image_path": image_urls[0] if image_urls else None,
-            "generalInformation_ref_id": ObjectId(generalInformation_ref_id),
-            "createdAt": datetime.now(ZoneInfo("America/Denver")),
-            "updatedAt": None,
-            "active": True,
-        }
-
-        new = await incidentDetails_collection.insert_one(data)
-        created = await incidentDetails_collection.find_one({"_id": new.inserted_id})
+        new = await duringTheIncidents_collection.insert_one(data)
+        created = await duringTheIncidents_collection.find_one({"_id": new.inserted_id})
 
         return success_response(
-            incident_detail_helper(created),
-            msg="Incident detail creado exitosamente"
+            during_the_incident_helper(created),
+            msg="During The Incident creado exitosamente"
         )
     except Exception as e:
         return error_response(
-            f"Error al crear incident detail: {str(e)}",
+            f"Error al crear During The Incident: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
 @router.get("/")
-async def get_all_incident_details():
+async def get_all_during_the_incidents():
     try:
-        incident_details = [
-            incident_detail_helper(i)
-            async for i in incidentDetails_collection.find({"active": True}).sort("createdAt", -1)
+        items = [
+            during_the_incident_helper(d)
+            async for d in duringTheIncidents_collection.find({"active": True}).sort("createdAt", -1)
         ]
-        return success_response(incident_details, msg="Lista de incident details obtenida")
+        return success_response(items, msg="Lista de During The Incidents obtenida")
     except Exception as e:
         return error_response(
-            f"Error al obtener incident details: {str(e)}",
+            f"Error al obtener During The Incidents: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
 @router.get("/{id}")
-async def get_incident_detail(id: str):
+async def get_during_the_incident(id: str):
     try:
-        incident_detail = await incidentDetails_collection.find_one({
+        if not ObjectId.is_valid(id):
+            return error_response("ID inválido", status_code=400)
+
+        item = await duringTheIncidents_collection.find_one({
             "_id": ObjectId(id),
             "active": True
         })
-        if incident_detail:
+        if item:
             return success_response(
-                incident_detail_helper(incident_detail),
-                msg="Incident detail encontrado"
+                during_the_incident_helper(item),
+                msg="During The Incident encontrado"
             )
         return error_response(
-            "Incident detail no encontrado",
+            "During The Incident no encontrado",
             status_code=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
-        return error_response(f"Error al obtener incident detail: {str(e)}")
+        return error_response(f"Error al obtener During The Incident: {str(e)}")
 
 
 @router.put("/{id}")
-async def update_incident_detail(
-    id: str,
-    incidentDescription: Optional[str] = Form(None),
-    actionEventCondition: Optional[str] = Form(None),
-    wereAnyVehiclesTowed: Optional[str] = Form(None),   # ✅ str en lugar de bool
-    wasAnyOneHurt: Optional[str] = Form(None),           # ✅ str en lugar de bool
-    describeAnyInjuries: Optional[str] = Form(None),
-    damageToAceTruck: Optional[str] = Form(None),
-    whatDamageWasDone: Optional[str] = Form(None),
-    incidentInThePastYear: Optional[str] = Form(None),  # ✅ str en lugar de bool
-    listDatesOfIncidents: Optional[str] = Form(None),
-    images: List[UploadFile] = File(default=None),
-):
+async def update_during_the_incident(id: str, during_the_incident: DuringTheIncidentModel):
     try:
-        # ✅ Convertir strings a bool
-        wereAnyVehiclesTowed_bool = parse_bool(wereAnyVehiclesTowed)
-        wasAnyOneHurt_bool = parse_bool(wasAnyOneHurt)
-        incidentInThePastYear_bool = parse_bool(incidentInThePastYear)
+        if not ObjectId.is_valid(id):
+            return error_response("ID inválido", status_code=400)
 
-        existing = await incidentDetails_collection.find_one({
-            "_id": ObjectId(id),
-            "active": True
-        })
-        if not existing:
-            return error_response("Incident detail no encontrado", status_code=status.HTTP_404_NOT_FOUND)
+        data = during_the_incident.model_dump(exclude_unset=True)
 
-        # Mantener URLs existentes y agregar las nuevas
-        image_urls = existing.get("images", [])
+        # No permitir cambiar active a través de este endpoint
+        data.pop("active", None)
 
-        if images:
-            for image in images:
-                if not image or not image.filename:
-                    continue
+        # Resolver lookups y denormalizar nombres
+        data = await resolve_lookup_fields(data)
 
-                if not image.content_type or not image.content_type.startswith("image/"):
-                    return error_response(
-                        f"The file '{image.filename}' is not an image.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+        # Audit field
+        data["updatedAt"] = datetime.now(ZoneInfo("America/Denver"))
 
-                contents = await image.read()
-
-                if len(contents) > 10 * 1024 * 1024:
-                    return error_response(
-                        f"The image '{image.filename}' exceeds the maximum allowed size of 10MB.",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
-
-                # ✅ Subir a OneDrive
-                file_url = await smart_upload(contents, image.filename, ONEDRIVE_SUBFOLDER)
-                image_urls.append(file_url)
-
-        data = {
-            "incidentDescription": incidentDescription,
-            "actionEventCondition": actionEventCondition,
-            "wereAnyVehiclesTowed": wereAnyVehiclesTowed_bool,
-            "wasAnyOneHurt": wasAnyOneHurt_bool,
-            "describeAnyInjuries": describeAnyInjuries,
-            "damageToAceTruck": damageToAceTruck,
-            "whatDamageWasDone": whatDamageWasDone,
-            "incidentInThePastYear": incidentInThePastYear_bool,
-            "listDatesOfIncidents": listDatesOfIncidents,
-            "images": image_urls,
-            # "image_path": image_urls[0] if image_urls else existing.get("image_path"),
-            "updatedAt": datetime.now(ZoneInfo("America/Denver")),
-        }
-
-        res = await incidentDetails_collection.update_one(
+        res = await duringTheIncidents_collection.update_one(
             {"_id": ObjectId(id), "active": True},
             {"$set": data}
         )
 
         if res.matched_count == 0:
             return error_response(
-                "Incident detail no encontrado o no está activo",
+                "During The Incident no encontrado o no está activo",
                 status_code=status.HTTP_404_NOT_FOUND
             )
 
-        updated = await incidentDetails_collection.find_one({"_id": ObjectId(id)})
+        updated = await duringTheIncidents_collection.find_one({"_id": ObjectId(id)})
         return success_response(
-            incident_detail_helper(updated),
-            msg="Incident detail actualizado"
+            during_the_incident_helper(updated),
+            msg="During The Incident actualizado"
         )
     except Exception as e:
-        return error_response(f"Error al actualizar incident detail: {str(e)}")
+        return error_response(f"Error al actualizar During The Incident: {str(e)}")
 
 
 @router.delete("/{id}")
-async def delete_incident_detail(id: str):
-    """Soft delete - marca como inactivo en lugar de eliminar"""
+async def delete_during_the_incident(id: str):
+    """Soft delete — marca como inactivo en lugar de eliminar."""
     try:
-        incident_detail = await incidentDetails_collection.find_one({
+        if not ObjectId.is_valid(id):
+            return error_response("ID inválido", status_code=400)
+
+        item = await duringTheIncidents_collection.find_one({
             "_id": ObjectId(id),
             "active": True
         })
 
-        if not incident_detail:
+        if not item:
             return error_response(
-                "Incident detail no encontrado o ya fue eliminado",
+                "During The Incident no encontrado o ya fue eliminado",
                 status_code=status.HTTP_404_NOT_FOUND
             )
 
-        await incidentDetails_collection.update_one(
+        await duringTheIncidents_collection.update_one(
             {"_id": ObjectId(id)},
-            {
-                "$set": {
-                    "active": False,
-                    "updatedAt": datetime.now(ZoneInfo("America/Denver"))
-                }
-            }
+            {"$set": {"active": False, "updatedAt": datetime.now(ZoneInfo("America/Denver"))}}
         )
 
-        return success_response(None, msg="Incident detail eliminado (soft delete)")
+        return success_response(None, msg="During The Incident eliminado (soft delete)")
     except Exception as e:
-        return error_response(f"Error al eliminar incident detail: {str(e)}")
+        return error_response(f"Error al eliminar During The Incident: {str(e)}")
 
 
 @router.get("/by-general-informacion/{generalInformation_id}")
-async def get_incident_details_by_general_information(generalInformation_id: str):
+async def get_during_the_incidents_by_general_information(generalInformation_id: str):
     try:
-        generalInformation_oid = ObjectId(generalInformation_id)
+        if not ObjectId.is_valid(generalInformation_id):
+            return error_response("ID inválido", status_code=400)
 
-        incident_details = [
-            incident_detail_helper(i)
-            async for i in incidentDetails_collection.find({
-                "generalInformation_ref_id": generalInformation_oid,
+        gi_oid = ObjectId(generalInformation_id)
+
+        items = [
+            during_the_incident_helper(d)
+            async for d in duringTheIncidents_collection.find({
+                "generalInformation_ref_id": gi_oid,
                 "active": True
             })
         ]
 
         return success_response(
-            incident_details,
-            msg=f"Incident details de la general_information {generalInformation_id} obtenidos"
+            items,
+            msg=f"During The Incidents de la general_information {generalInformation_id} obtenidos"
         )
     except Exception as e:
         return error_response(
-            f"Error al obtener incident details por general information: {str(e)}",
+            f"Error al obtener During The Incidents por general information: {str(e)}",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

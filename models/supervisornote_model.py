@@ -1,8 +1,6 @@
-from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime, timezone
-from bson import ObjectId
+from datetime import datetime
 
 
 class SupervisorNoteModel(BaseModel):
@@ -21,5 +19,5 @@ class SupervisorNoteModel(BaseModel):
     # AUDIT FIELDS
     createdBy: Optional[str] = None
     updatedBy: Optional[str] = None  
-    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(ZoneInfo("America/Denver")))
-    updatedAt: Optional[datetime] = None 
+    createdAt: Optional[datetime] = None   # ✅ Sin default_factory para evitar bug en PUT
+    updatedAt: Optional[datetime] = None

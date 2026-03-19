@@ -1,26 +1,24 @@
 def during_the_incident_helper(duringIncident) -> dict:
     return {
         "id": str(duringIncident["_id"]),
+
         "usingElectronicDevice": duringIncident.get("usingElectronicDevice"),
         "taskPerfomed": duringIncident.get("taskPerfomed"),
-              
+
         "wasSafetyDeptNotified": duringIncident.get("wasSafetyDeptNotified"),
         "didYouTakePictures": duringIncident.get("didYouTakePictures"),
-        "safetyPersonNotified_id": str(duringIncident["safetyPersonNotified_id"]) if duringIncident.get("safetyPersonNotified_id") else None,
-        "whoDidYouSendPicturesTo_id": str(duringIncident["whoDidYouSendPicturesTo_id"]) if duringIncident.get("whoDidYouSendPicturesTo_id") else None,  
-        
-        
         "howFastWereYouGoing": duringIncident.get("howFastWereYouGoing"),
 
-        # IDs de referencia (como string para el frontend)
+        # ✅ IDs de referencia — nombres alineados con el frontend y el modelo
+        "safetyPersonNotified_id": str(duringIncident["safetyPersonNotified_id"]) if duringIncident.get("safetyPersonNotified_id") else None,
+        "whoDidYouSendThePicturesTo_id": str(duringIncident["whoDidYouSendThePicturesTo_id"]) if duringIncident.get("whoDidYouSendThePicturesTo_id") else None,
         "directionYouWereTraveling_id": str(duringIncident["directionYouWereTraveling_id"]) if duringIncident.get("directionYouWereTraveling_id") else None,
-        "weatherConditions_id": str(duringIncident["weatherConditions_id"]) if duringIncident.get("weatherConditions_id") else None,
-        "roadConditions_id": str(duringIncident["roadConditions_id"]) if duringIncident.get("roadConditions_id") else None,
+        "weatherCondition_id": str(duringIncident["weatherCondition_id"]) if duringIncident.get("weatherCondition_id") else None,
+        "roadCondition_id": str(duringIncident["roadCondition_id"]) if duringIncident.get("roadCondition_id") else None,
 
-        # ✅ Nombres denormalizados - leídos del campo guardado, no del ObjectId
+        # ✅ Nombres denormalizados
         "safetyPersonNotifiedName": duringIncident.get("safetyPersonNotifiedName"),
-        "whoDidYouSendThePictureToName": duringIncident.get("whoDidYouSendThePictureToName"),   
-      
+        "whoDidYouSendThePictureToName": duringIncident.get("whoDidYouSendThePictureToName"),
         "directionName": duringIncident.get("directionName"),
         "weatherName": duringIncident.get("weatherName"),
         "roadConditionName": duringIncident.get("roadConditionName"),
