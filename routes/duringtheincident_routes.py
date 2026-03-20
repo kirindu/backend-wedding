@@ -128,6 +128,10 @@ async def update_during_the_incident(id: str, during_the_incident: DuringTheInci
         # No permitir cambiar active a través de este endpoint
         data.pop("active", None)
 
+        # ✅ Convertir generalInformation_ref_id a ObjectId si viene en el payload
+        if data.get("generalInformation_ref_id"):
+            data["generalInformation_ref_id"] = ObjectId(data["generalInformation_ref_id"])
+
         # Resolver lookups y denormalizar nombres
         data = await resolve_lookup_fields(data)
 

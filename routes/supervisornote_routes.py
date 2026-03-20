@@ -89,6 +89,10 @@ async def update_supervisor_note(id: str, supervisor_note: SupervisorNoteModel):
         # No permitir cambiar active a través de este endpoint
         data.pop("active", None)
 
+        # ✅ Convertir generalInformation_ref_id a ObjectId si viene en el payload
+        if data.get("generalInformation_ref_id"):
+            data["generalInformation_ref_id"] = ObjectId(data["generalInformation_ref_id"])
+
         # Audit field
         data["updatedAt"] = datetime.now(ZoneInfo("America/Denver"))
 
