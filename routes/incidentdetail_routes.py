@@ -22,21 +22,32 @@ router = APIRouter()
 ONEDRIVE_SUBFOLDER = "incidentdetails"
 
 
+# ✅ Helper para convertir strings a bool (necesario para form-data)
+def parse_bool(value: Optional[str]) -> Optional[bool]:
+    if value is None:
+        return None
+    return str(value).lower() in ("true", "1", "yes")
+
+
 @router.post("/")
 async def create_incident_detail(
     incidentDescription: Optional[str] = Form(None),
     actionEventCondition: Optional[str] = Form(None),
-    wereAnyVehiclesTowed: Optional[bool] = Form(None),
-    wasAnyOneHurt: Optional[bool] = Form(None),
+    wereAnyVehiclesTowed: Optional[str] = Form(None),   # ✅ str en lugar de bool
+    wasAnyOneHurt: Optional[str] = Form(None),           # ✅ str en lugar de bool
     describeAnyInjuries: Optional[str] = Form(None),
     damageToAceTruck: Optional[str] = Form(None),
     whatDamageWasDone: Optional[str] = Form(None),
-    incidentInThePastYear: Optional[bool] = Form(None),
+    incidentInThePastYear: Optional[str] = Form(None),  # ✅ str en lugar de bool
     listDatesOfIncidents: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=None),
     generalInformation_ref_id: str = Form(...),
 ):
     try:
+        # ✅ Convertir strings a bool
+        wereAnyVehiclesTowed_bool = parse_bool(wereAnyVehiclesTowed)
+        wasAnyOneHurt_bool = parse_bool(wasAnyOneHurt)
+        incidentInThePastYear_bool = parse_bool(incidentInThePastYear)
         image_urls = []
 
         if images:
@@ -65,12 +76,12 @@ async def create_incident_detail(
         data = {
             "incidentDescription": incidentDescription,
             "actionEventCondition": actionEventCondition,
-            "wereAnyVehiclesTowed": wereAnyVehiclesTowed,
-            "wasAnyOneHurt": wasAnyOneHurt,
+            "wereAnyVehiclesTowed": wereAnyVehiclesTowed_bool,
+            "wasAnyOneHurt": wasAnyOneHurt_bool,
             "describeAnyInjuries": describeAnyInjuries,
             "damageToAceTruck": damageToAceTruck,
             "whatDamageWasDone": whatDamageWasDone,
-            "incidentInThePastYear": incidentInThePastYear,
+            "incidentInThePastYear": incidentInThePastYear_bool,
             "listDatesOfIncidents": listDatesOfIncidents,
             "images": image_urls,
             # "image_path": image_urls[0] if image_urls else None,  # primera imagen como preview
@@ -134,16 +145,21 @@ async def update_incident_detail(
     id: str,
     incidentDescription: Optional[str] = Form(None),
     actionEventCondition: Optional[str] = Form(None),
-    wereAnyVehiclesTowed: Optional[bool] = Form(None),
-    wasAnyOneHurt: Optional[bool] = Form(None),
+    wereAnyVehiclesTowed: Optional[str] = Form(None),   # ✅ str en lugar de bool
+    wasAnyOneHurt: Optional[str] = Form(None),           # ✅ str en lugar de bool
     describeAnyInjuries: Optional[str] = Form(None),
     damageToAceTruck: Optional[str] = Form(None),
     whatDamageWasDone: Optional[str] = Form(None),
-    incidentInThePastYear: Optional[bool] = Form(None),
+    incidentInThePastYear: Optional[str] = Form(None),  # ✅ str en lugar de bool
     listDatesOfIncidents: Optional[str] = Form(None),
     images: List[UploadFile] = File(default=None),
 ):
     try:
+        # ✅ Convertir strings a bool
+        wereAnyVehiclesTowed_bool = parse_bool(wereAnyVehiclesTowed)
+        wasAnyOneHurt_bool = parse_bool(wasAnyOneHurt)
+        incidentInThePastYear_bool = parse_bool(incidentInThePastYear)
+
         existing = await incidentDetails_collection.find_one({
             "_id": ObjectId(id),
             "active": True
@@ -180,12 +196,12 @@ async def update_incident_detail(
         data = {
             "incidentDescription": incidentDescription,
             "actionEventCondition": actionEventCondition,
-            "wereAnyVehiclesTowed": wereAnyVehiclesTowed,
-            "wasAnyOneHurt": wasAnyOneHurt,
+            "wereAnyVehiclesTowed": wereAnyVehiclesTowed_bool,
+            "wasAnyOneHurt": wasAnyOneHurt_bool,
             "describeAnyInjuries": describeAnyInjuries,
             "damageToAceTruck": damageToAceTruck,
             "whatDamageWasDone": whatDamageWasDone,
-            "incidentInThePastYear": incidentInThePastYear,
+            "incidentInThePastYear": incidentInThePastYear_bool,
             "listDatesOfIncidents": listDatesOfIncidents,
             "images": image_urls,
             # "image_path": image_urls[0] if image_urls else existing.get("image_path"),
