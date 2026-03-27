@@ -451,3 +451,38 @@ async def permanent_delete_general_information(id: str):
 
     except Exception as e:
         return error_response(f"Error al eliminar permanentemente: {str(e)}")
+
+
+# 8. ✅ PATCH — Marcar como firmado por el empleado
+@router.patch("/{id}/sign-employee")
+async def sign_by_employee(id: str):
+    """
+    Marca el reporte como firmado por el empleado (signedByEmployee = True).
+    Se llama automáticamente al hacer Submit del Incident Report desde el frontend.
+    """
+    try:
+        if not ObjectId.is_valid(id):
+            return error_response("ID inválido", status_code=400)
+
+        tz = ZoneInfo("America/Denver")
+        res = await generalinformations_collection.update_one(
+            {"_id": ObjectId(id), "active": True},
+            {"$set": {
+                "signedByEmployee": True,
+                "updatedAt": datetime.now(tz)
+            }}
+        )
+
+        if res.matched_count == 0:
+            return error_response(
+                "General information no encontrada o no está activa",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+
+        updated = await generalinformations_collection.find_one({"_id": ObjectId(id)})
+        return success_response(
+            general_information_helper(updated),
+            msg="Reporte marcado como firmado por el empleado"
+        )
+    except Exception as e:
+        return error_response(f"Error al actualizar firma del empleado: {str(e)}")
