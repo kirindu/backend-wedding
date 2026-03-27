@@ -28,6 +28,10 @@ def general_information_helper(generalinformation) -> dict:
         # SOFT DELETE FIELD
         "active": generalinformation.get("active", True),
 
+        # ✅ Estado de firmas
+        "signedByEmployee": generalinformation.get("signedByEmployee", False),
+        "signedBySupervisor": generalinformation.get("signedBySupervisor", False),
+
         # AUDIT FIELDS
         "createdBy": str(generalinformation["createdBy"]) if generalinformation.get("createdBy") else None,
         "updatedBy": str(generalinformation["updatedBy"]) if generalinformation.get("updatedBy") else None,

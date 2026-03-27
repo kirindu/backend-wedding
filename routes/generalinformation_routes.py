@@ -279,6 +279,10 @@ async def create_general_information(general_information: GeneralInformationMode
         data["updatedAt"] = None
         data["active"] = data.get("active", True)
 
+        # ✅ Estado de firmas — siempre False al crear
+        data["signedByEmployee"] = False
+        data["signedBySupervisor"] = False
+
         # PASO 4: Insertar
         result = await generalinformations_collection.insert_one(data)
         new_doc = await generalinformations_collection.find_one({"_id": result.inserted_id})

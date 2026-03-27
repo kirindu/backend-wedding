@@ -29,9 +29,13 @@ class GeneralInformationModel(BaseModel):
            
     # 🆕 Campo para soft deletes
     active: bool = Field(default=True)
+
+    # ✅ Estado de firmas
+    signedByEmployee: bool = Field(default=False)
+    signedBySupervisor: bool = Field(default=False)
     
     # AUDIT FIELDS
     createdBy: Optional[str] = None
     updatedBy: Optional[str] = None  
     createdAt: Optional[datetime] = None
-    updatedAt: Optional[datetime] = None 
+    updatedAt: Optional[datetime] = None
