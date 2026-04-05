@@ -18,7 +18,7 @@ from schemas.guess_scheme import guess_helper
 router = APIRouter()
 
 
-@router.post("/")
+@router.post("")
 async def create_guess(guess: GuessModel):
     try:
         data = guess.model_dump()
@@ -42,7 +42,7 @@ async def create_guess(guess: GuessModel):
         )
 
 
-@router.get("/")
+@router.get("")
 async def get_all_guesses():
     try:
         guesses = [
