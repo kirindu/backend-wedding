@@ -6,13 +6,13 @@ from zoneinfo import ZoneInfo
 from bson import ObjectId
 
 # Modelos
-from models.supervisornote_model import SupervisorNoteModel
+from models.guess_model import SupervisorNoteModel
 
 # Configuración de la base de datos y colecciones
 from config.database import supervisorNotes_collection
 
 # Esquemas
-from schemas.supervisornote_scheme import supervisor_note_helper
+from schemas.guess_scheme import supervisor_note_helper
 
 # Rutas
 router = APIRouter()
