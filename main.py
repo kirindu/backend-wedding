@@ -19,7 +19,7 @@ async def lifespan(application: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, redirect_slashes=False)
 
 # ── CORS ───────────────────────────────────────────────────────────────────
 origins = [
