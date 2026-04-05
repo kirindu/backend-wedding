@@ -17,7 +17,7 @@ database  = client[DB_NAME]
 async def ping_database():
     try:
         await client.admin.command('ping')
-        print(Fore.GREEN + "✅ Successfully connected to MongoDB Atlas!")
+        print(Fore.GREEN + "✅ Successfully connected to MongoDB on Dokploy!")
     except Exception as e:
         print(Fore.RED + f"❌ Failed to connect to MongoDB: {e}")
 
